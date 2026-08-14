@@ -14,7 +14,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: 'easeOut' } },
 };
 
-function FaqItem({ question, answer, index }) {
+function FaqItem({ item, index }) {
   const [isOpen, setIsOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
@@ -27,7 +27,7 @@ function FaqItem({ question, answer, index }) {
       transition={{ duration: 0.5, delay: (index % 4) * 0.06 }}
     >
       <button className="faq__summary" onClick={() => setIsOpen((v) => !v)} aria-expanded={isOpen}>
-        {question}
+        {item.question}
         <motion.span
           className="faq__toggle"
           animate={{ rotate: isOpen ? 45 : 0 }}
@@ -46,7 +46,19 @@ function FaqItem({ question, answer, index }) {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
           >
-            <p>{answer}</p>
+            <p>
+              {item.link ? (
+                <>
+                  {item.answerBefore}
+                  <a className="acm-mention" href={item.link.url} target="_blank" rel="noreferrer">
+                    {item.link.text}
+                  </a>
+                  {item.answerAfter}
+                </>
+              ) : (
+                item.answer
+              )}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -77,7 +89,7 @@ export default function Faq() {
 
         <div className="faq__list">
           {faq.items.map((faqItem, index) => (
-            <FaqItem key={faqItem.question} question={faqItem.question} answer={faqItem.answer} index={index} />
+            <FaqItem key={faqItem.question} item={faqItem} index={index} />
           ))}
         </div>
       </div>

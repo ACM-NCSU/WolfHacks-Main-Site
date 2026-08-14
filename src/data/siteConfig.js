@@ -42,35 +42,56 @@ const siteConfig = {
       heading: 'FAQ',
       items: [
         {
-          question: 'What is a hackathon?',
+          question: 'What is a hackathon, and why should I participate?',
           answer:
-            "A hackathon is an invention marathon. Students team up to build a software or hardware project over 24 hours, from a blank slate to a working demo. It's very beginner friendly; you don't need to have hackathon experience.",
-        },
-        {
-          question: 'Why should I participate?',
-          answer:
-            "You'll build something real in a weekend, learn skills that don't fit in a classroom, and meet people who like building things as much as you do. There are mentors and workshops if you want to learn something new, and it looks great on a resume even if you've never coded before.",
+            "A hackathon is an invention marathon. Students team up to build a software or hardware project over 24 hours, from a blank slate to a working demo. It's very beginner friendly; you don't need to have hackathon experience, and there's no illegal or malicious hacking involved. You'll build something real in a weekend, learn skills that don't fit in a classroom, and meet people who like building things as much as you do. There are mentors and workshops if you want to learn something new, and it looks great on a resume even if you've never coded before.",
         },
         {
           question: 'How much does it cost?',
-          answer: 'Nothing. Attending WolfHacks is free, including meals for the weekend.',
+          answer: "Nothing. Attending WolfHacks is free, including meals for the weekend. We'll also have prizes for the winners.",
         },
         {
           question: 'Do I need to be a student to attend?',
           answer:
-            'Yes. Any current college or university student, or anyone who has graduated within the past 12 months, is eligible to attend, not just NC State students.',
+            'Yes. Any current university student over the age of 18 is eligible to attend, not just NC State students.',
         },
         {
           question: 'Do I need a team, or experience, to apply?',
           answer:
-            'No to both. You can apply solo and form a team at the event, and total beginners are welcome. There will be workshops and mentors all weekend.',
+            "No to both. You can apply solo and form a team at the event, and total beginners are welcome — there will be workshops and mentors all weekend. Teams should be between 2 and 4 people, and we'll have a team-building activity right after opening ceremony if you'd like to find teammates.",
         },
         {
-          question: 'Where is the event?',
+          question: 'Where is the event, and do I have to stay overnight?',
           answer:
-            'Centennial Campus, NC State University, Raleigh, NC. Exact building and room details go out closer to the event.',
+            "Centennial Campus, NC State University, Raleigh, NC. The event is in person. Exact building and room details go out closer to the event. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. You don't have to stay overnight — you're welcome to leave and come back if you'd prefer.",
         },
-        
+        {
+          question: 'What kind of activities will there be?',
+          answer:
+            'We will post the schedule closer to the event. There will be workshops and activities to take a break and meet other hackers and our wonderful sponsors.',
+        },
+        {
+          question: 'Are you sending out acceptances? Is there a deadline to apply? Is there a waitlist?',
+          // TODO: fill in the actual number of days before the event acceptances go out.
+          answerBefore:
+            'We will send out acceptances XX days before the event. If you need earlier confirmation to book travel, please reach out to our team at ',
+          link: { text: 'acmchapter-org@ncsu.edu', url: 'mailto:acmchapter-org@ncsu.edu' },
+          answerAfter:
+            '. Applications will close once we reach the maximum amount of hackers we can support, but we will open a waitlist on the day of the event for any local hackers who want to fill the spots of any accepted hackers who do not end up attending.',
+        },
+        {
+          question: 'How do I sign up to be a mentor/judge/volunteer?',
+          answerBefore: 'You can sign up ',
+          // TODO: replace with your real volunteer/mentor/judge sign-up form URL.
+          link: { text: 'here', url: 'https://forms.gle/REPLACE-WITH-YOUR-VOLUNTEER-SIGNUP-FORM' },
+          answerAfter: '.',
+        },
+        {
+          question: 'I have a different question!',
+          answerBefore: 'Email us at ',
+          link: { text: 'acmchapter-org@ncsu.edu', url: 'mailto:acmchapter-org@ncsu.edu' },
+          answerAfter: '!',
+        },
       ],
     },
 
