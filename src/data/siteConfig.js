@@ -14,11 +14,11 @@ const siteConfig = {
     name: 'WolfHacks',
     date: 'Oct 3-4, 2026',
     location: 'Centennial Campus, Raleigh, NC',
-    coordinates: '35.7847°N 78.6821°W',
     countdownTarget: '2026-10-03T09:00:00',
 
     acm: {
       name: 'ACM at NC State',
+      url: 'https://acm-ncsu.github.io/about/',
     },
 
     // MLH trust badge, same mechanism as the original boilerplate template.
@@ -34,7 +34,6 @@ const siteConfig = {
 
     hero: {
       eyebrowPrefix: 'ACM AT NC STATE',
-      headline: 'Build something wild.',
       subhead:
         "WolfHacks is a fall hackathon brought together by ACM at NC State, where students come together to build something in one weekend. It's open to all majors and all skill levels. You'll have access to workshops, sponsor networking, mentors, and yes, free food. All you have to do is build a project in 24 hours.",
       registerNote:

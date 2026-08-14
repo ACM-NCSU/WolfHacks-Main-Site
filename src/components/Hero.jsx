@@ -20,6 +20,7 @@ export default function Hero() {
   const { event } = siteConfig;
   const prefersReducedMotion = useReducedMotion();
   const sceneRef = useRef(null);
+  const [subheadBefore, subheadAfter] = event.hero.subhead.split(event.acm.name);
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -42,7 +43,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="hero" id="apply">
+    <section className="hero">
       <div className="hero__grid">
         <motion.div
           className="hero__badges"
@@ -50,12 +51,15 @@ export default function Hero() {
           initial={prefersReducedMotion ? 'show' : 'hidden'}
           animate="show"
         >
-          <motion.img
-            variants={item}
-            className="hero__acm-badge"
-            src={`${import.meta.env.BASE_URL}images/acm-ncsu-logo.png`}
-            alt="ACM NCSU Chapter logo"
-          />
+          <motion.div variants={item} className="hero__acm-badge-wrap">
+            <a href={event.acm.url} target="_blank" rel="noreferrer" aria-label={`${event.acm.name} website`}>
+              <img
+                className="hero__acm-badge"
+                src={`${import.meta.env.BASE_URL}images/acm-ncsu-logo.png`}
+                alt="ACM NCSU Chapter logo"
+              />
+            </a>
+          </motion.div>
 
           <motion.div variants={item} className="hero__logo-placeholder" role="img" aria-label="WolfHacks logo placeholder">
             <span>
@@ -82,40 +86,22 @@ export default function Hero() {
             {event.name.toUpperCase()}
           </motion.h1>
 
-          <motion.p variants={item} className="hero__tagline">
-            {event.hero.headline}
-          </motion.p>
-
           <motion.p variants={item} className="hero__sub">
-            {event.hero.subhead}
+            {subheadBefore}
+            <a className="acm-mention" href={event.acm.url} target="_blank" rel="noreferrer">
+              {event.acm.name}
+            </a>
+            {subheadAfter}
           </motion.p>
 
           <motion.p variants={item} className="hero__meta">
             <span>{event.date}</span>
             <span aria-hidden="true">&middot;</span>
             <span>{event.location}</span>
-            <span aria-hidden="true">&middot;</span>
-            <span>{event.coordinates}</span>
           </motion.p>
 
           <motion.div variants={item}>
             <Countdown target={event.countdownTarget} />
-          </motion.div>
-
-          <motion.p variants={item} className="hero__register-note">
-            {event.hero.registerNote}
-          </motion.p>
-
-          <motion.div variants={item} className="hero__actions">
-            <motion.a
-              className="btn btn--primary"
-              href={event.hero.preRegisterUrl}
-              whileHover={prefersReducedMotion ? undefined : { y: -2, boxShadow: '0 6px 18px rgba(200, 16, 46, 0.45)' }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-              transition={{ duration: 0.15 }}
-            >
-              Pre-register
-            </motion.a>
           </motion.div>
         </motion.div>
 
@@ -132,7 +118,10 @@ export default function Hero() {
             <WolfMark className="hero__wolf" />
           </motion.div>
           <svg className="hero__horizon" viewBox="0 0 420 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 40 C 80 20, 140 55, 220 30 S 380 10, 420 35 L 420 60 L 0 60 Z" fill="#0F1216" />
+            <path
+              d="M0 40 C 80 20, 140 55, 220 30 S 380 10, 420 35 L 420 60 L 0 60 Z"
+              className="hero__horizon-path"
+            />
           </svg>
         </div>
       </div>

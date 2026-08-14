@@ -1,7 +1,7 @@
 import siteConfig from '../data/siteConfig.js';
 
 export default function Footer() {
-  const { event, social } = siteConfig;
+  const { event } = siteConfig;
 
   return (
     <footer className="footer">
@@ -9,12 +9,24 @@ export default function Footer() {
         <div>
           <p className="footer__mark">WOLFHACKS</p>
           <p className="footer__tagline footer__tagline--acm">
-            <img
-              className="footer__acm-logo"
-              src={`${import.meta.env.BASE_URL}images/acm-ncsu-logo.png`}
-              alt="ACM NCSU Chapter logo"
-            />
-            Hosted by <span className="acm-mention">{event.acm.name}</span>.
+            <a
+              className="footer__acm-logo-wrap"
+              href={event.acm.url}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${event.acm.name} website`}
+            >
+              <img
+                className="footer__acm-logo"
+                src={`${import.meta.env.BASE_URL}images/acm-ncsu-logo.png`}
+                alt="ACM NCSU Chapter logo"
+              />
+            </a>
+            Hosted by{' '}
+            <a className="acm-mention" href={event.acm.url} target="_blank" rel="noreferrer">
+              {event.acm.name}
+            </a>
+            .
           </p>
         </div>
 
@@ -23,13 +35,7 @@ export default function Footer() {
         </nav>
 
         <div className="footer__contact">
-          <a href="mailto:hello@wolfhacks.dev">hello@wolfhacks.dev</a>
-          <a href={`https://twitter.com/${social.twitterHandle}`} target="_blank" rel="noreferrer">
-            Twitter
-          </a>
-          <a href={`https://instagram.com/${social.instagramHandle}`} target="_blank" rel="noreferrer">
-            Instagram
-          </a>
+          <a href="mailto:acmchapter-org@ncsu.edu">acmchapter-org@ncsu.edu</a>
         </div>
       </div>
 
