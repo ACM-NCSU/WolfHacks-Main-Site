@@ -1,11 +1,19 @@
+import { motion, useReducedMotion } from 'framer-motion';
 import siteConfig from '../data/siteConfig.js';
 
 export default function Footer() {
   const { event } = siteConfig;
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <footer className="footer">
-      <div className="container footer__grid">
+      <motion.div
+        className="container footer__grid"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '0px 0px -10% 0px', amount: 0.3 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
         <div>
           <p className="footer__mark">WOLFHACKS</p>
           <p className="footer__tagline footer__tagline--acm">
@@ -30,14 +38,16 @@ export default function Footer() {
           </p>
         </div>
 
-        <nav className="footer__links" aria-label="Footer">
-          <a href="#faq">FAQ</a>
-        </nav>
+        <div className="footer__links-col">
+          <nav className="footer__links" aria-label="Footer">
+            <a href="#faq">FAQ</a>
+          </nav>
 
-        <div className="footer__contact">
-          <a href="mailto:acmchapter-org@ncsu.edu">acmchapter-org@ncsu.edu</a>
+          <div className="footer__contact">
+            <a href="mailto:acmchapter-org@ncsu.edu">acmchapter-org@ncsu.edu</a>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="container">
         <p className="footer__fine">

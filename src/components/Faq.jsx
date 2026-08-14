@@ -2,6 +2,18 @@ import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import siteConfig from '../data/siteConfig.js';
 
+const container = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.09, delayChildren: 0.05 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: 'easeOut' } },
+};
+
 function FaqItem({ question, answer, index }) {
   const [isOpen, setIsOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
@@ -44,16 +56,28 @@ function FaqItem({ question, answer, index }) {
 
 export default function Faq() {
   const { faq } = siteConfig.event;
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <section className="section faq" id="faq">
       <div className="container">
-        <p className="eyebrow">{faq.eyebrow}</p>
-        <h2 className="section__heading">{faq.heading}</h2>
+        <motion.div
+          variants={container}
+          initial={prefersReducedMotion ? 'show' : 'hidden'}
+          whileInView="show"
+          viewport={{ once: true, margin: '0px 0px -10% 0px', amount: 0.3 }}
+        >
+          <motion.p variants={item} className="eyebrow">
+            {faq.eyebrow}
+          </motion.p>
+          <motion.h2 variants={item} className="section__heading">
+            {faq.heading}
+          </motion.h2>
+        </motion.div>
 
         <div className="faq__list">
-          {faq.items.map((item, index) => (
-            <FaqItem key={item.question} question={item.question} answer={item.answer} index={index} />
+          {faq.items.map((faqItem, index) => (
+            <FaqItem key={faqItem.question} question={faqItem.question} answer={faqItem.answer} index={index} />
           ))}
         </div>
       </div>

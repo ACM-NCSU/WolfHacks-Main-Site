@@ -6,7 +6,7 @@ The WolfHacks landing page. Built with React + Vite, hosted by ACM at NC State.
 
 1. Install dependencies: `npm install`
 2. Start the dev server: `npm run dev`
-3. Head over to the URL it prints (usually `http://localhost:5173/mlh-hackathon-boilerplate/`)
+3. Head over to the URL it prints (usually `http://localhost:5173/`)
 
 ## Build for production
 

@@ -5,11 +5,6 @@ const siteConfig = {
       'WolfHacks is a fall hackathon at NC State hosted by ACM. Open to all majors and skill levels. Workshops, sponsor networking, and free food. Build a project in 24 hours.',
   },
 
-  social: {
-    twitterHandle: 'wolfhacks',
-    instagramHandle: 'wolfhacks',
-  },
-
   event: {
     name: 'WolfHacks',
     date: 'Oct 3-4, 2026',
@@ -52,6 +47,11 @@ const siteConfig = {
             "A hackathon is an invention marathon. Students team up to build a software or hardware project over 24 hours, from a blank slate to a working demo. It's very beginner friendly; you don't need to have hackathon experience.",
         },
         {
+          question: 'Why should I participate?',
+          answer:
+            "You'll build something real in a weekend, learn skills that don't fit in a classroom, and meet people who like building things as much as you do. There are mentors and workshops if you want to learn something new, and it looks great on a resume even if you've never coded before.",
+        },
+        {
           question: 'How much does it cost?',
           answer: 'Nothing. Attending WolfHacks is free, including meals for the weekend.',
         },
@@ -63,18 +63,14 @@ const siteConfig = {
         {
           question: 'Do I need a team, or experience, to apply?',
           answer:
-            'No to both. You can apply solo and form a team at check-in, and total beginners are welcome. There will be workshops and mentors all weekend.',
+            'No to both. You can apply solo and form a team at the event, and total beginners are welcome. There will be workshops and mentors all weekend.',
         },
         {
           question: 'Where is the event?',
           answer:
             'Centennial Campus, NC State University, Raleigh, NC. Exact building and room details go out closer to the event.',
         },
-        {
-          question: 'Is there a code of conduct?',
-          answer:
-            'Yes, and we enforce it. A link to the full code of conduct will be posted here before applications open.',
-        },
+        
       ],
     },
 

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
 import siteConfig from '../data/siteConfig.js';
 import WolfMark from './WolfMark.jsx';
 import Countdown from './Countdown.jsx';
@@ -19,6 +19,7 @@ const item = {
 export default function Hero() {
   const { event } = siteConfig;
   const prefersReducedMotion = useReducedMotion();
+  const heroRef = useRef(null);
   const sceneRef = useRef(null);
   const [subheadBefore, subheadAfter] = event.hero.subhead.split(event.acm.name);
 
@@ -29,6 +30,11 @@ export default function Hero() {
   const wolfY = useSpring(useTransform(my, (v) => v * -6), springConfig);
   const moonX = useSpring(useTransform(mx, (v) => v * 12), springConfig);
   const moonY = useSpring(useTransform(my, (v) => v * 8), springConfig);
+
+  // Gentle ambient drift as the hero scrolls out of view — the scene lags
+  // slightly behind the page, giving the art a touch of depth.
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const sceneScrollY = useTransform(scrollYProgress, [0, 1], [0, 36]);
 
   function handleMouseMove(e) {
     if (prefersReducedMotion || !sceneRef.current) return;
@@ -43,7 +49,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="hero">
+    <section className="hero" ref={heroRef}>
       <div className="hero__grid">
         <motion.div
           className="hero__badges"
@@ -105,11 +111,12 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        <div
+        <motion.div
           className="hero__scene"
           ref={sceneRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          style={{ y: prefersReducedMotion ? 0 : sceneScrollY }}
           aria-hidden="true"
         >
           <motion.div className="hero__moon" style={{ x: moonX, y: moonY }} />
@@ -123,7 +130,7 @@ export default function Hero() {
               className="hero__horizon-path"
             />
           </svg>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

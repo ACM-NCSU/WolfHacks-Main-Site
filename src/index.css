@@ -26,12 +26,14 @@
 
   /* Section rhythm: fluid clamps replace fixed per-breakpoint padding so
      spacing grows smoothly with viewport instead of jumping at three
-     hard-coded widths. */
-  --hero-pad-top:    clamp(72px, 6vw + 48px, 116px);
-  --hero-pad-bottom: clamp(56px, 5vw + 32px, 96px);
+     hard-coded widths. Hero and the registration CTA use vh (not vw) so
+     they shrink on short viewports and the CTA stays reachable without
+     scrolling, instead of only reacting to width. */
+  --hero-pad-top:    clamp(32px, 7vh, 84px);
+  --hero-pad-bottom: clamp(20px, 4vh, 48px);
   --space-section:  clamp(104px, 7vw + 78px, 176px);
-  --space-cta-top:  clamp(64px, 3.5vw + 48px, 96px);
-  --space-cta-bottom: clamp(48px, 2.5vw + 36px, 72px);
+  --space-cta-top:  clamp(20px, 4vh, 48px);
+  --space-cta-bottom: clamp(24px, 4vh, 48px);
   --space-faq-top:  clamp(48px, 3vw + 38px, 80px);
 }
 
@@ -198,7 +200,7 @@ a.acm-mention:hover { text-decoration: underline; }
   font-weight: 500;
   letter-spacing: 0.12em;
   color: var(--steel-dark);
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .hero__badges {
@@ -272,7 +274,7 @@ a.acm-mention:hover { text-decoration: underline; }
   font-size: 19px;
   color: var(--steel-dark);
   max-width: 56ch;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .btn {
@@ -338,7 +340,7 @@ a.acm-mention:hover { text-decoration: underline; }
   font-size: clamp(2rem, 12vw, 8.6rem);
   line-height: 0.92;
   letter-spacing: -0.01em;
-  margin: 10px 0 22px;
+  margin: 6px 0 14px;
   overflow-wrap: break-word;
   word-break: break-word;
   animation: wordmark-glow 5s ease-in-out 0.9s infinite;
@@ -363,7 +365,7 @@ a.acm-mention:hover { text-decoration: underline; }
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--steel-dark);
-  margin-top: 26px;
+  margin-top: 18px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -371,7 +373,7 @@ a.acm-mention:hover { text-decoration: underline; }
 }
 
 .countdown {
-  margin-top: 22px;
+  margin-top: 16px;
   display: inline-flex;
   gap: 12px;
 }
@@ -389,6 +391,11 @@ a.acm-mention:hover { text-decoration: underline; }
 }
 
 .countdown__value {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  overflow: hidden;
+  line-height: 1;
   font-family: var(--font-mono);
   font-weight: 500;
   font-size: 24px;
@@ -557,14 +564,14 @@ a.acm-mention:hover { text-decoration: underline; }
 }
 
 .register__actions {
-  margin-top: 24px;
+  margin-top: 18px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .scroll-cue {
-  margin-top: 36px;
+  margin-top: 28px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -617,7 +624,10 @@ a.acm-mention:hover { text-decoration: underline; }
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  transition: color 0.15s ease;
 }
+
+.faq__summary:hover { color: var(--red); }
 
 .faq__toggle {
   font-family: var(--font-mono);
@@ -652,6 +662,12 @@ a.acm-mention:hover { text-decoration: underline; }
   grid-template-columns: 1fr;
   gap: 32px;
   padding-bottom: 32px;
+}
+
+.footer__links-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .footer__mark {
@@ -723,7 +739,15 @@ a.acm-mention:hover { text-decoration: underline; }
   .hero__acm-badge { width: 88px; }
   .hero__logo-placeholder { width: 132px; height: 132px; }
 
-  .footer__grid { grid-template-columns: 1.4fr 1fr 1fr; }
+  .footer__grid {
+    grid-template-columns: 1fr auto;
+    align-items: start;
+  }
+
+  .footer__links-col {
+    align-items: flex-end;
+    text-align: right;
+  }
 }
 
 @media (min-width: 1024px) {
