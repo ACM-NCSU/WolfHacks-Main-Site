@@ -2,7 +2,7 @@ const siteConfig = {
   seo: {
     title: 'WolfHacks: a student hackathon at NC State',
     description:
-      'WolfHacks is a fall hackathon at NC State hosted by ACM. Open to all majors and skill levels. Workshops, sponsor networking, free food, and swag. Build a project in 24 hours.',
+      'WolfHacks is a fall hackathon at NC State hosted by ACM. Open to all majors and skill levels. Workshops, sponsor networking, and free food. Build a project in 24 hours.',
   },
 
   social: {
@@ -36,7 +36,7 @@ const siteConfig = {
       eyebrowPrefix: 'ACM AT NC STATE',
       headline: 'Build something wild.',
       subhead:
-        "WolfHacks is a fall hackathon brought together by ACM at NC State, where students come together to build something in one weekend. It's open to all majors and all skill levels. You'll have access to workshops, sponsor networking, mentors, and yes, free food, swag, and merch. All you have to do is build a project in 24 hours.",
+        "WolfHacks is a fall hackathon brought together by ACM at NC State, where students come together to build something in one weekend. It's open to all majors and all skill levels. You'll have access to workshops, sponsor networking, mentors, and yes, free food. All you have to do is build a project in 24 hours.",
       registerNote:
         "Registration isn't open yet. Fill out this quick form to let us know you're interested, and we'll notify you the moment it goes live.",
       // TODO: replace with your real pre-registration form URL (Google Form, Typeform, etc.)

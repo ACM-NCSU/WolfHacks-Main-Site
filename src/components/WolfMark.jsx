@@ -2,43 +2,14 @@ export default function WolfMark({ className = '' }) {
   return (
     <svg
       className={`wolf-mark ${className}`}
-      viewBox="0 0 200 200"
+      viewBox="0 0 512 512"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <polygon className="wolf-mark__ear" points="18,75 60,108 57,42" />
-      <polygon className="wolf-mark__ear" points="182,75 140,108 143,42" />
-      <polygon className="wolf-mark__ear-facet wolf-mark__ear-facet--dark" points="57,42 18,75 39,92" />
-      <polygon className="wolf-mark__ear-facet wolf-mark__ear-facet--light" points="57,42 39,92 60,108" />
-      <polygon className="wolf-mark__ear-facet wolf-mark__ear-facet--dark" points="143,42 182,75 161,92" />
-      <polygon className="wolf-mark__ear-facet wolf-mark__ear-facet--light" points="143,42 161,92 140,108" />
-      <polygon className="wolf-mark__ear-inner" points="30,72 52,93 50,54" />
-      <polygon className="wolf-mark__ear-inner" points="170,72 148,93 150,54" />
-
-      <polygon className="wolf-mark__face" points="56,82 100,56 144,82 128,146 100,197 72,146" />
-
-      <polygon className="wolf-mark__facet wolf-mark__facet--light" points="100,110 100,56 144,82" />
-      <polygon className="wolf-mark__facet wolf-mark__facet--light" points="100,110 144,82 128,146" />
-      <polygon className="wolf-mark__facet wolf-mark__facet--mid" points="100,110 128,146 100,197" />
-      <polygon className="wolf-mark__facet wolf-mark__facet--dark" points="100,110 100,197 72,146" />
-      <polygon className="wolf-mark__facet wolf-mark__facet--dark" points="100,110 72,146 56,82" />
-      <polygon className="wolf-mark__facet wolf-mark__facet--mid" points="100,110 56,82 100,56" />
-
-      <polygon className="wolf-mark__fur" points="60,98 46,105 59,113" />
-      <polygon className="wolf-mark__fur" points="65,122 51,129 64,137" />
-      <polygon className="wolf-mark__fur" points="140,98 154,105 141,113" />
-      <polygon className="wolf-mark__fur" points="135,122 149,129 136,137" />
-
-      <path className="wolf-mark__stripe" d="M100,64 L100,174" />
-      <path className="wolf-mark__brow" d="M68,101 L90,108" />
-      <path className="wolf-mark__brow" d="M132,101 L110,108" />
-
-      <polygon className="wolf-mark__nose" points="93,179 107,179 100,193" />
-
-      <circle className="wolf-mark__eye-glow" cx="82" cy="113" r="11" />
-      <circle className="wolf-mark__eye-glow" cx="118" cy="113" r="11" />
-      <circle className="wolf-mark__eye" cx="82" cy="113" r="5.5" />
-      <circle className="wolf-mark__eye" cx="118" cy="113" r="5.5" />
+      <path
+        className="wolf-mark__icon"
+        d="M255.563 22.094c-126.81 0-229.594 102.784-229.594 229.594 0 25.4 4.132 49.846 11.75 72.687 40.154-24.203 76.02-41.17 107.56-52.03-35.752 5.615-66.405 23.66-109.843 4 31.552-27.765 87.682-65.842 138.532-71.658 26.58-21.615 68.113-43.962 89.655-37.28 30.492-26.873 67.982-61.093 108.125-85.75 10.667 16.156 17.124 35.94 12.563 57.874-80.37 20.205-61.692 148.928 13.468 67.44 6.348 13.064 9.41 26.665 9.095 41.436-32.675 33.83-66.97 63.026-101.938 87.906.466 23.99-5.605 52.915-19 84.813-5.635 13.42-7.33 36.406 22.875 53.97 101.14-24.012 176.375-114.924 176.375-223.408 0-126.81-102.815-229.593-229.625-229.593zm3.312 164.375c-17.835 2.22-32.794 9.046-45.844 18.968 12.083-.036 25.612 2.882 37.5 6.156 6.208-6.698 10.236-18.52 8.345-25.125z"
+      />
     </svg>
   );
 }

@@ -36,7 +36,15 @@ export default function Footer() {
       <div className="container">
         <p className="footer__fine">
           WolfHacks is organized by the {event.acm.name} student chapter and is not officially
-          affiliated with or endorsed by NC State University.
+          affiliated with or endorsed by NC State University. Wolf howl icon by{' '}
+          <a href="https://game-icons.net/1x1/lorc/wolf-howl.html" target="_blank" rel="noreferrer">
+            Lorc
+          </a>{' '}
+          (
+          <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">
+            CC BY 3.0
+          </a>
+          ).
         </p>
       </div>
     </footer>

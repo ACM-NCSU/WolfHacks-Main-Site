@@ -14,12 +14,25 @@
   --steel:      #7C8591;
   --steel-dark: #9AA2AC;
   --cream:      #EFE9DB;
+  --card:       rgba(27, 32, 39, 0.5);
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-body:    'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
 
   --container: 1180px;
+}
+
+:root[data-theme='light'] {
+  --ink:        #F7F3EA;
+  --ink-raised: #EFE9DB;
+  --line:       #DCD4C0;
+  --paper:      #1B2027;
+  --paper-line: #2A3038;
+  --steel:      #6B7280;
+  --steel-dark: #454C57;
+  --cream:      #FFFFFF;
+  --card:       rgba(255, 255, 255, 0.6);
 }
 
 /* ---------- Reset ---------- */
@@ -36,6 +49,7 @@ body {
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 #mlh-trust-badge {
@@ -49,6 +63,26 @@ body {
   z-index: 10000;
 }
 
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--ink-raised);
+  color: var(--paper);
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.theme-toggle:hover { border-color: var(--red); color: var(--red); }
+
 .site-stars {
   position: fixed;
   inset: 0;
@@ -56,6 +90,11 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+[data-theme='light'] .site-stars {
+  opacity: 0;
 }
 
 h1, h2, h3, p, ul, ol, dl, figure { margin: 0; }
@@ -101,24 +140,33 @@ summary:focus-visible {
   margin-bottom: 16px;
 }
 
+.hero__badges {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
 .hero__acm-badge {
   display: block;
-  width: 88px;
+  width: 60px;
   height: auto;
-  margin: 0 auto 20px;
+  margin: 0;
   filter: drop-shadow(0 0 18px rgba(204, 0, 0, 0.35));
 }
 
 .hero__logo-placeholder {
-  width: 148px;
-  height: 148px;
-  margin: 0 auto 24px;
+  width: 96px;
+  height: 96px;
+  margin: 0;
   border: 2px dashed var(--red);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(204, 0, 0, 0.06);
+  flex-shrink: 0;
 }
 
 .hero__logo-placeholder span {
@@ -167,70 +215,23 @@ summary:focus-visible {
   border: 1px solid transparent;
   border-radius: 2px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .btn--primary { background: var(--red); color: var(--paper); }
 
-/* ---------- Wolf mark ---------- */
+/* ---------- Wolf mark ----------
+   "Wolf Head" by Lorc, via game-icons.net (CC BY 3.0) */
 
-.wolf-mark__ear,
-.wolf-mark__face,
-.wolf-mark__nose,
-.wolf-mark__fur {
-  fill: var(--ink-raised);
-  stroke: var(--line);
-  stroke-width: 2;
-  stroke-linejoin: round;
+.wolf-mark__icon {
+  fill: var(--paper);
+  filter: drop-shadow(0 0 14px rgba(204, 0, 0, 0.45));
+  animation: wolf-glow 4s ease-in-out infinite;
 }
 
-.wolf-mark__ear-inner {
-  fill: var(--line);
-  opacity: 0.55;
-}
-
-/* Low-poly gem facets, light source from the upper right */
-.wolf-mark__facet,
-.wolf-mark__ear-facet {
-  stroke: none;
-}
-
-.wolf-mark__facet--light,
-.wolf-mark__ear-facet--light {
-  fill: rgba(245, 241, 232, 0.08);
-}
-
-.wolf-mark__facet--mid {
-  fill: rgba(245, 241, 232, 0.03);
-}
-
-.wolf-mark__facet--dark,
-.wolf-mark__ear-facet--dark {
-  fill: rgba(0, 0, 0, 0.22);
-}
-
-.wolf-mark__stripe,
-.wolf-mark__brow {
-  fill: none;
-  stroke: var(--line);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  opacity: 0.6;
-}
-
-.wolf-mark__eye {
-  fill: var(--red);
-  filter: drop-shadow(0 0 5px rgba(200, 16, 46, 0.85));
-  animation: wolf-eye-pulse 4s ease-in-out infinite;
-}
-
-.wolf-mark__eye-glow {
-  fill: rgba(200, 16, 46, 0.25);
-  animation: wolf-eye-pulse 4s ease-in-out infinite;
-}
-
-@keyframes wolf-eye-pulse {
-  0%, 100% { opacity: 0.75; }
-  50% { opacity: 1; }
+@keyframes wolf-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(204, 0, 0, 0.35)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(204, 0, 0, 0.6)); }
 }
 
 /* ---------- Hero ---------- */
@@ -242,13 +243,21 @@ summary:focus-visible {
   text-align: center;
 }
 
-.hero__content {
-  position: relative;
-  z-index: 1;
-  max-width: 900px;
+.hero__grid {
+  max-width: var(--container);
   margin: 0 auto;
   /* top padding clears the fixed MLH trust badge (top:0, up to ~174px tall at its max size) */
-  padding: 140px 24px 0;
+  padding: 56px 24px 0;
+}
+
+.hero__badges { grid-area: badges; }
+
+.hero__content {
+  grid-area: content;
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .hero__wordmark {
@@ -257,7 +266,7 @@ summary:focus-visible {
   font-size: clamp(1.9rem, 11.5vw, 8rem);
   line-height: 0.92;
   letter-spacing: -0.01em;
-  margin: 20px 0 8px;
+  margin: 8px 0 6px;
   overflow-wrap: break-word;
   word-break: break-word;
   animation: wordmark-glow 5s ease-in-out 0.9s infinite;
@@ -273,7 +282,7 @@ summary:focus-visible {
   font-weight: 600;
   font-size: clamp(20px, 3vw, 28px);
   color: var(--steel-dark);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .hero__sub {
@@ -289,7 +298,7 @@ summary:focus-visible {
   font-size: 12px;
   letter-spacing: 0.04em;
   color: var(--steel);
-  margin-top: 28px;
+  margin-top: 18px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -297,7 +306,7 @@ summary:focus-visible {
 }
 
 .countdown {
-  margin-top: 28px;
+  margin-top: 18px;
   display: inline-flex;
   gap: 10px;
 }
@@ -310,7 +319,7 @@ summary:focus-visible {
   min-width: 52px;
   padding: 10px 4px;
   border: 1px solid var(--line);
-  background: rgba(27, 32, 39, 0.5);
+  background: var(--card);
   overflow: hidden;
 }
 
@@ -331,7 +340,7 @@ summary:focus-visible {
 }
 
 .hero__actions {
-  margin-top: 28px;
+  margin-top: 18px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -339,17 +348,20 @@ summary:focus-visible {
 }
 
 .hero__scene {
+  grid-area: scene;
   position: relative;
   z-index: 1;
   max-width: 320px;
   min-height: 200px;
-  margin: 40px auto 0;
+  margin: 16px auto 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 
 .hero__moon {
+  --moon-glow-a: rgba(231, 223, 200, 0.22);
+  --moon-glow-b: rgba(231, 223, 200, 0.36);
   position: absolute;
   top: -6px;
   right: 30px;
@@ -357,13 +369,20 @@ summary:focus-visible {
   height: 52px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #FBF7EC, #E7DFC8 70%);
-  box-shadow: 0 0 40px 12px rgba(231, 223, 200, 0.25);
+  box-shadow: 0 0 40px 12px var(--moon-glow-a);
   animation: moon-glow 6s ease-in-out infinite;
 }
 
+[data-theme='light'] .hero__moon {
+  --moon-glow-a: rgba(154, 130, 80, 0.24);
+  --moon-glow-b: rgba(154, 130, 80, 0.4);
+  background: radial-gradient(circle at 35% 35%, #FFFFFF, #D9CBAE 70%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 @keyframes moon-glow {
-  0%, 100% { box-shadow: 0 0 40px 12px rgba(231, 223, 200, 0.22); }
-  50% { box-shadow: 0 0 56px 18px rgba(231, 223, 200, 0.36); }
+  0%, 100% { box-shadow: 0 0 40px 12px var(--moon-glow-a); }
+  50% { box-shadow: 0 0 56px 18px var(--moon-glow-b); }
 }
 
 .hero__horizon {
@@ -373,6 +392,7 @@ summary:focus-visible {
   bottom: 0;
   width: 100%;
   height: 60px;
+  opacity: 0.55;
 }
 
 .hero__aura {
@@ -401,7 +421,7 @@ summary:focus-visible {
 
 .hero__wolf-wrap {
   position: relative;
-  margin-bottom: 12px;
+  margin-bottom: 30px;
 }
 
 .hero__wolf.wolf-mark {
@@ -520,24 +540,51 @@ summary:focus-visible {
   max-width: 64ch;
 }
 
+.footer__fine a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer__fine a:hover { color: var(--paper); }
+
 /* ---------- Responsive ---------- */
 
 @media (min-width: 768px) {
   .section { padding: 128px 0; }
 
-  .hero__content { padding: 160px 24px 0; }
-  .hero__acm-badge { width: 112px; }
-  .hero__logo-placeholder { width: 176px; height: 176px; }
+  .hero__grid { padding: 72px 24px 0; }
+  .hero__acm-badge { width: 80px; }
+  .hero__logo-placeholder { width: 120px; height: 120px; }
 
   .footer__grid { grid-template-columns: 1.4fr 1fr 1fr; }
 }
 
 @media (min-width: 1024px) {
-  .hero__content { padding-top: 190px; }
-  .hero__scene { max-width: 380px; min-height: 240px; margin-top: 56px; }
-  .hero__wolf.wolf-mark { width: 220px; height: 220px; }
+  .hero__grid {
+    display: grid;
+    padding-top: 64px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas:
+      "content badges"
+      "content scene";
+    align-items: start;
+    row-gap: 20px;
+    column-gap: 48px;
+    text-align: left;
+  }
+
+  .hero__content { max-width: none; margin: 0; }
+  .hero__wordmark { font-size: clamp(2.6rem, 5.4vw, 4.5rem); }
+  .hero__sub { margin-left: 0; }
+  .hero__meta { justify-content: flex-start; }
+  .hero__actions { justify-content: flex-start; }
+  .hero__register-note { margin-left: 0; }
+
+  .hero__scene { max-width: none; min-height: 220px; margin: 0; }
+  .hero__wolf.wolf-mark { width: 200px; height: 200px; }
 }
 
 @media (min-width: 1280px) {
   .section { padding: 160px 0; }
+  .hero__wolf.wolf-mark { width: 260px; height: 260px; }
 }
