@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import Starfield from './components/Starfield.jsx';
 import TrustBadge from './components/TrustBadge.jsx';
 import ThemeToggle from './components/ThemeToggle.jsx';
@@ -17,6 +18,7 @@ export default function App() {
       <Register />
       <Faq />
       <Footer />
+      <Analytics />
     </>
   );
 }
