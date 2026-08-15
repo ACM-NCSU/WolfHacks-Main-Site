@@ -34,7 +34,11 @@ const siteConfig = {
       registerNote:
         "Registration isn't open yet. Fill out this quick form to let us know you're interested, and we'll notify you the moment it goes live.",
       // TODO: replace with your real pre-registration form URL (Google Form, Typeform, etc.)
-      preRegisterUrl: 'https://forms.gle/REPLACE-WITH-YOUR-PRE-REG-FORM',
+      preRegisterUrl: 'https://forms.gle/m3jiVcFZdRRo2tLo8',
+      // TODO: once the WolfHacks logo is ready, drop the file in public/images/
+      // and set this to its filename (e.g. 'images/wolfhacks-logo.png'). It will
+      // appear next to the ACM badge automatically — the space is already reserved.
+      logoUrl: null,
     },
 
     faq: {
@@ -53,7 +57,7 @@ const siteConfig = {
         {
           question: 'Do I need to be a student to attend?',
           answer:
-            'Yes. Any current university student over the age of 18 is eligible to attend, not just NC State students.',
+            'No. Anyone over the age of 18 is eligible to attend, whether or not you are a university student, and not just NC State students.',
         },
         {
           question: 'Do I need a team, or experience, to apply?',
@@ -71,20 +75,12 @@ const siteConfig = {
             'We will post the schedule closer to the event. There will be workshops and activities to take a break and meet other hackers and our wonderful sponsors.',
         },
         {
-          question: 'Are you sending out acceptances? Is there a deadline to apply? Is there a waitlist?',
+          question: 'Are you sending out acceptances? Is there a deadline to apply?',
           // TODO: fill in the actual number of days before the event acceptances go out.
           answerBefore:
             'We will send out acceptances XX days before the event. If you need earlier confirmation to book travel, please reach out to our team at ',
           link: { text: 'acmchapter-org@ncsu.edu', url: 'mailto:acmchapter-org@ncsu.edu' },
-          answerAfter:
-            '. Applications will close once we reach the maximum amount of hackers we can support, but we will open a waitlist on the day of the event for any local hackers who want to fill the spots of any accepted hackers who do not end up attending.',
-        },
-        {
-          question: 'How do I sign up to be a mentor/judge/volunteer?',
-          answerBefore: 'You can sign up ',
-          // TODO: replace with your real volunteer/mentor/judge sign-up form URL.
-          link: { text: 'here', url: 'https://forms.gle/REPLACE-WITH-YOUR-VOLUNTEER-SIGNUP-FORM' },
-          answerAfter: '.',
+          answerAfter: '. Applications will close once we reach the maximum amount of hackers we can support.',
         },
         {
           question: 'I have a different question!',

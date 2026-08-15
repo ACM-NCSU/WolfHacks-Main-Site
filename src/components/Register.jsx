@@ -42,6 +42,8 @@ export default function Register() {
             <motion.a
               className="btn btn--primary"
               href={event.hero.preRegisterUrl}
+              target="_blank"
+              rel="noreferrer"
               whileHover={prefersReducedMotion ? undefined : { y: -2, boxShadow: '0 6px 18px rgba(200, 16, 46, 0.45)' }}
               whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
               transition={{ duration: 0.15 }}

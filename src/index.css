@@ -209,6 +209,7 @@ a.acm-mention:hover { text-decoration: underline; }
   align-items: center;
   justify-content: center;
   gap: 16px;
+  min-height: 104px;
 }
 
 .hero__acm-badge-wrap {
@@ -233,31 +234,24 @@ a.acm-mention:hover { text-decoration: underline; }
 
 .hero__acm-badge {
   display: block;
-  width: 66px;
+  width: 84px;
   height: auto;
   margin: 0;
   filter: drop-shadow(0 0 18px rgba(204, 0, 0, 0.35));
 }
 
-.hero__logo-placeholder {
+.hero__logo-slot {
   width: 104px;
   height: 104px;
   margin: 0;
-  border: 2px dashed var(--red);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(204, 0, 0, 0.06);
   flex-shrink: 0;
 }
 
-.hero__logo-placeholder span {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  line-height: 1.6;
-  color: var(--steel-dark);
+.hero__logo-slot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .section__heading {
@@ -736,8 +730,9 @@ a.acm-mention:hover { text-decoration: underline; }
 /* ---------- Responsive ---------- */
 
 @media (min-width: 768px) {
-  .hero__acm-badge { width: 88px; }
-  .hero__logo-placeholder { width: 132px; height: 132px; }
+  .hero__badges { min-height: 132px; }
+  .hero__acm-badge { width: 108px; }
+  .hero__logo-slot { width: 132px; height: 132px; }
 
   .footer__grid {
     grid-template-columns: 1fr auto;

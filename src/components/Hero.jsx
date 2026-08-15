@@ -67,15 +67,11 @@ export default function Hero() {
             </a>
           </motion.div>
 
-          <motion.div variants={item} className="hero__logo-placeholder" role="img" aria-label="WolfHacks logo placeholder">
-            <span>
-              YOUR
-              <br />
-              WOLFHACKS
-              <br />
-              LOGO HERE
-            </span>
-          </motion.div>
+          {event.hero.logoUrl && (
+            <motion.div variants={item} className="hero__logo-slot">
+              <img src={`${import.meta.env.BASE_URL}${event.hero.logoUrl}`} alt={`${event.name} logo`} />
+            </motion.div>
+          )}
         </motion.div>
 
         <motion.div
