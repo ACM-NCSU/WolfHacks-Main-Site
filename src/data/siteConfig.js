@@ -57,7 +57,7 @@ const siteConfig = {
         {
           question: 'Do I need to be a student to attend?',
           answer:
-            'No. Anyone over the age of 18 is eligible to attend, whether or not you are a university student, and not just NC State students.',
+            'No. Anyone over the age of 18 is eligible to attend, whether or not you are a university student.',
         },
         {
           question: 'Do I need a team, or experience, to apply?',
@@ -78,7 +78,7 @@ const siteConfig = {
           question: 'Are you sending out acceptances? Is there a deadline to apply?',
           // TODO: fill in the actual number of days before the event acceptances go out.
           answerBefore:
-            'We will send out acceptances XX days before the event. If you need earlier confirmation to book travel, please reach out to our team at ',
+            'We will send out acceptances a few days before the event. If you need earlier confirmation to book travel, please reach out to our team at ',
           link: { text: 'acmchapter-org@ncsu.edu', url: 'mailto:acmchapter-org@ncsu.edu' },
           answerAfter: '. Applications will close once we reach the maximum amount of hackers we can support.',
         },
