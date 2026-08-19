@@ -6,6 +6,7 @@ import Hero from './components/Hero.jsx';
 import Register from './components/Register.jsx';
 import Sponsors from './components/Sponsors.jsx';
 import Faq from './components/Faq.jsx';
+import Location from './components/Location';
 import Footer from './components/Footer.jsx';
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
       <Register />
       <Sponsors />
       <Faq />
+      <Location />
       <Footer />
       <Analytics />
     </>
