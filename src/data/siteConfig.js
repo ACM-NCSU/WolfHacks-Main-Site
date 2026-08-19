@@ -91,6 +91,19 @@ const siteConfig = {
       ],
     },
 
+    sponsors: [
+      {
+        name: 'Institute for Advanced Analytics',
+        logoUrl: 'images/sponsors/institute-for-advanced-analytics.png',
+        url: 'https://analytics.ncsu.edu/',
+      },
+      {
+        name: 'AI @ NC State',
+        logoUrl: 'images/sponsors/ai-at-nc-state.png',
+        url: 'https://ai.ncsu.edu/',
+      },
+    ],
+
     registerThanksMessage: "You'll receive more information closer to the hackathon.",
   },
 };

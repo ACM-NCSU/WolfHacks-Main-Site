@@ -4,6 +4,7 @@ import TrustBadge from './components/TrustBadge.jsx';
 import ThemeToggle from './components/ThemeToggle.jsx';
 import Hero from './components/Hero.jsx';
 import Register from './components/Register.jsx';
+import Sponsors from './components/Sponsors.jsx';
 import Faq from './components/Faq.jsx';
 import Footer from './components/Footer.jsx';
 
@@ -16,6 +17,7 @@ export default function App() {
       <ThemeToggle />
       <Hero />
       <Register />
+      <Sponsors />
       <Faq />
       <Footer />
       <Analytics />
