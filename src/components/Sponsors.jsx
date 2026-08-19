@@ -64,7 +64,6 @@ export default function Sponsors() {
                   src={`${import.meta.env.BASE_URL}${sponsor.logoUrl}`}
                   alt={sponsor.name}
                 />
-                <span className="sponsor__name">{sponsor.name}</span>
               </motion.a>
             ))}
           </motion.div>
