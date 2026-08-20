@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timezone
 from typing import Literal
@@ -8,6 +9,9 @@ from pydantic import BaseModel, Field, model_validator
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+
+logging.basicConfig(level=os.getenv("WOLFHACKS_LOG_LEVEL", "INFO"))
+logger = logging.getLogger("wolfhacks")
 
 app = FastAPI(title="WolfHacks API")
 GOOGLE_SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
@@ -72,6 +76,9 @@ class Application(BaseModel):
 
 def get_sheets_service():
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
+        logger.warning(
+            "Google Sheets service account file not found at %s", SERVICE_ACCOUNT_FILE
+        )
         raise HTTPException(
             status_code=503,
             detail=(
@@ -128,19 +135,41 @@ def health():
 
 @app.post("/api/applications", status_code=201)
 def create_application(application: Application):
+    logger.info(
+        "Received application submission: %s %s <%s>",
+        application.first_name,
+        application.last_name,
+        application.email,
+    )
+
     if not SPREADSHEET_ID:
+        logger.warning("Rejected submission: GOOGLE_SHEETS_SPREADSHEET_ID is not configured")
         raise HTTPException(status_code=503, detail="Google Sheets spreadsheet ID is not configured")
 
     service = get_sheets_service()
-    result = service.spreadsheets().values().append(
-        spreadsheetId=SPREADSHEET_ID,
-        range=SHEETS_RANGE,
-        valueInputOption="USER_ENTERED",
-        insertDataOption="INSERT_ROWS",
-        body={"values": application_values(application)},
-    ).execute()
+    try:
+        result = service.spreadsheets().values().append(
+            spreadsheetId=SPREADSHEET_ID,
+            range=SHEETS_RANGE,
+            valueInputOption="USER_ENTERED",
+            insertDataOption="INSERT_ROWS",
+            body={"values": application_values(application)},
+        ).execute()
+    except Exception:
+        logger.exception(
+            "Failed to append application from %s to spreadsheet %s",
+            application.email,
+            SPREADSHEET_ID,
+        )
+        raise HTTPException(
+            status_code=502,
+            detail="We could not save your application to Google Sheets. Please try again shortly.",
+        )
+
+    updated_range = result.get("updates", {}).get("updatedRange")
+    logger.info("Application from %s appended at %s", application.email, updated_range)
 
     return {
-        "updated_range": result.get("updates", {}).get("updatedRange"),
+        "updated_range": updated_range,
         "message": "Application received",
     }
