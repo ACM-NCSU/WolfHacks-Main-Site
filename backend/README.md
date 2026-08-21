@@ -45,16 +45,33 @@ Submitted at | First name | Middle Name | Last name | Age | Email | Country Of R
 
 Create a Google Cloud service account, enable the Google Sheets API, download
 its JSON key, and share the spreadsheet with the service account email as an
-Editor. Keep the JSON key outside version control, then set:
+Editor. Keep the JSON key outside version control.
+
+## Environment variables
+
+Copy `.env.example` to `.env` and fill in your values — `.env` is gitignored
+and loaded automatically on startup:
 
 ```bash
-# Path to the downloaded service-account JSON file
-set GOOGLE_SERVICE_ACCOUNT_FILE=C:\secrets\wolfhacks-sheets.json
-# The ID from https://docs.google.com/spreadsheets/d/<ID>/edit
-set GOOGLE_SHEETS_SPREADSHEET_ID=1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M
-set GOOGLE_SHEETS_RANGE=Applications!A:W
-set WOLFHACKS_ALLOWED_ORIGINS=http://localhost:5173
+cp .env.example .env
+```
+
+```dotenv
+# Google Sheets
+GOOGLE_SERVICE_ACCOUNT_FILE=C:\secrets\wolfhacks-sheets.json
+GOOGLE_SHEETS_SPREADSHEET_ID=1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M
+GOOGLE_SHEETS_RANGE=Applications!A:W
+
+# Supabase
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_KEY=<anon-or-publishable-key>
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+
+# App
+WOLFHACKS_ALLOWED_ORIGINS=http://localhost:5173
+WOLFHACKS_LOG_LEVEL=INFO
 ```
 
 The default CORS origins are the local Vite URLs. The API never sends Google
-credentials to the browser.
+or Supabase credentials to the browser. `SUPABASE_SERVICE_ROLE_KEY` bypasses
+row-level security — only ever use it server-side, never in frontend code.

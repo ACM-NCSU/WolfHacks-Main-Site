@@ -4,3 +4,4 @@ dist/
 backend/.venv/
 backend/__pycache__/
 backend/service-account*.json
+backend/.env

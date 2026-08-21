@@ -3,12 +3,15 @@ import os
 from datetime import datetime, timezone
 from typing import Literal
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+
+load_dotenv()
 
 logging.basicConfig(level=os.getenv("WOLFHACKS_LOG_LEVEL", "INFO"))
 logger = logging.getLogger("wolfhacks")
@@ -21,6 +24,11 @@ SPREADSHEET_ID = os.getenv(
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
 )
 SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:W")
+
+# Supabase connection fields (not yet wired into any route)
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 app.add_middleware(
     CORSMiddleware,
