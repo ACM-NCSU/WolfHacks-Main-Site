@@ -145,7 +145,11 @@ function SelectField({ name, value, onChange, options, placeholder = 'Select an 
     };
   }, []);
 
-  function select(option) {
+  function select(event, option) {
+    // These options render inside a <label>, so a plain click here also
+    // triggers the browser's native label->control click forwarding onto
+    // the sibling <input>, which re-toggles it open right after we close it.
+    event.preventDefault();
     onChange(name, option);
     setOpen(false);
   }
@@ -165,7 +169,7 @@ function SelectField({ name, value, onChange, options, placeholder = 'Select an 
           {options.map((option) => (
             <div
               key={option}
-              onClick={() => select(option)}
+              onClick={(event) => select(event, option)}
               className={`application-form__dropdown-item ${value === option ? 'application-form__dropdown-item--selected' : ''}`}
             >
               {option}

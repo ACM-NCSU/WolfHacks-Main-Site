@@ -7,6 +7,7 @@ from typing import Literal
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request as FastAPIRequest
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -44,7 +45,7 @@ SPREADSHEET_ID = os.getenv(
     "GOOGLE_SHEETS_SPREADSHEET_ID",
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
 )
-SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:W")
+SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:X")
 
 # Supabase connection fields (not yet wired into any route)
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
@@ -65,14 +66,15 @@ app.add_middleware(
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: FastAPIRequest, exc: RequestValidationError):
     body = exc.body if isinstance(exc.body, dict) else {}
+    errors = jsonable_encoder(exc.errors())
     logger.warning(
         "Rejected application submission (validation failed) from %s %s <%s>: %s",
         body.get("first_name", "?"),
         body.get("last_name", "?"),
         body.get("email", "?"),
-        exc.errors(),
+        errors,
     )
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+    return JSONResponse(status_code=422, content={"detail": errors})
 
 
 @app.exception_handler(Exception)
@@ -104,7 +106,8 @@ class Application(BaseModel):
     shirt_size_other: str = Field(default="", max_length=80)
     pronouns: Literal["He / Him", "She / Her", "They / Them", "Other", ""] = ""
     pronouns_other: str = Field(default="", max_length=80)
-    dietary_notes: Literal["Vegetarian", "Vegan", "Celiac Disease", "Allergies", "Kosher", "Halal"]
+    dietary_notes: Literal["None", "Vegetarian", "Vegan", "Celiac Disease", "Allergies", "Kosher", "Halal", "Other"]
+    dietary_notes_other: str = Field(default="", max_length=160)
     mlh_code_of_conduct: bool
     mlh_data_authorization: bool
     mlh_marketing_emails: bool = False
@@ -119,6 +122,8 @@ class Application(BaseModel):
             raise ValueError("Please enter your gender when Other is selected")
         if self.pronouns == "Other" and not self.pronouns_other.strip():
             raise ValueError("Please enter your pronouns when Other is selected")
+        if self.dietary_notes in ("Allergies", "Other") and not self.dietary_notes_other.strip():
+            raise ValueError("Please provide additional dietary information")
         return self
 
 
@@ -174,6 +179,7 @@ def application_values(application: Application):
         values["pronouns"],
         values["pronouns_other"],
         values["dietary_notes"],
+        values["dietary_notes_other"],
         values["mlh_code_of_conduct"],
         values["mlh_data_authorization"],
         values["mlh_marketing_emails"],

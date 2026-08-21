@@ -40,7 +40,7 @@ curl http://127.0.0.1:8000/api/health
 Applications are submitted as JSON to `POST /api/applications` and appended to the configured Google Sheet. Create an `Applications` worksheet with this header row:
 
 ```text
-Submitted at | First name | Middle Name | Last name | Age | Email | Country Of Residence | Discord Username | Phone number | University | Classification | Major | Hackathon before | Gender | Other gender | Shirt size | Other shirt size | Pronouns | Other pronouns | Dietary Restrictions | MLH Code of Conduct | MLH Data Authorization | MLH Marketing Emails
+Submitted at | First name | Middle Name | Last name | Age | Email | Country Of Residence | Discord Username | Phone number | University | Classification | Major | Hackathon before | Gender | Other gender | Shirt size | Other shirt size | Pronouns | Other pronouns | Dietary Restrictions | Other dietary restrictions | MLH Code of Conduct | MLH Data Authorization | MLH Marketing Emails
 ```
 
 Create a Google Cloud service account, enable the Google Sheets API, download
@@ -60,7 +60,7 @@ cp .env.example .env
 # Google Sheets
 GOOGLE_SERVICE_ACCOUNT_FILE=C:\secrets\wolfhacks-sheets.json
 GOOGLE_SHEETS_SPREADSHEET_ID=1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M
-GOOGLE_SHEETS_RANGE=Applications!A:W
+GOOGLE_SHEETS_RANGE=Applications!A:X
 
 # Supabase
 SUPABASE_URL=https://<project-ref>.supabase.co
