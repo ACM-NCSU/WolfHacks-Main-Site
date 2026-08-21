@@ -1,12 +1,15 @@
 import json
 import logging
 import os
+import sys
 from datetime import datetime, timezone
 from typing import Literal
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request as FastAPIRequest
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
@@ -14,7 +17,23 @@ from googleapiclient.discovery import build
 
 load_dotenv()
 
-logging.basicConfig(level=os.getenv("WOLFHACKS_LOG_LEVEL", "INFO"))
+_log_formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+# Vercel's log viewer buckets by stream (stdout -> Info, stderr -> Error), not by
+# Python log level, so INFO/DEBUG go to stdout and WARNING+ go to stderr to keep
+# routine "accepted submission" logs from showing up as errors in the dashboard.
+_stdout_handler = logging.StreamHandler(sys.stdout)
+_stdout_handler.setFormatter(_log_formatter)
+_stdout_handler.addFilter(lambda record: record.levelno < logging.WARNING)
+
+_stderr_handler = logging.StreamHandler(sys.stderr)
+_stderr_handler.setFormatter(_log_formatter)
+_stderr_handler.setLevel(logging.WARNING)
+
+logging.basicConfig(
+    level=os.getenv("WOLFHACKS_LOG_LEVEL", "INFO"),
+    handlers=[_stdout_handler, _stderr_handler],
+)
 logger = logging.getLogger("wolfhacks")
 
 app = FastAPI(title="WolfHacks API")
@@ -41,6 +60,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: FastAPIRequest, exc: RequestValidationError):
+    body = exc.body if isinstance(exc.body, dict) else {}
+    logger.warning(
+        "Rejected application submission (validation failed) from %s %s <%s>: %s",
+        body.get("first_name", "?"),
+        body.get("last_name", "?"),
+        body.get("email", "?"),
+        exc.errors(),
+    )
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: FastAPIRequest, exc: Exception):
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 class Application(BaseModel):
@@ -187,7 +225,13 @@ def create_application(application: Application):
         )
 
     updated_range = result.get("updates", {}).get("updatedRange")
-    logger.info("Application from %s appended at %s", application.email, updated_range)
+    logger.info(
+        "Accepted application submission: %s %s <%s> appended at %s",
+        application.first_name,
+        application.last_name,
+        application.email,
+        updated_range,
+    )
 
     return {
         "updated_range": updated_range,
