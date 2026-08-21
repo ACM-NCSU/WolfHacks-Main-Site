@@ -94,15 +94,15 @@ class Application(BaseModel):
         max_length=14,
         pattern=r"^\([2-9]\d{2}\) [2-9]\d{2}-\d{4}$",
     )
-    university: str = Field(min_length=2, max_length=160)
-    classification: Literal["Freshman", "Sophomore", "Junior", "Senior", "Post-Graduate", "Graduated"]
-    major: str = Field(min_length=2, max_length=120)
+    university: str = Field(default="", max_length=160)
+    classification: Literal["Freshman", "Sophomore", "Junior", "Senior", "Post-Graduate", "Graduated", ""] = ""
+    major: str = Field(default="", max_length=120)
     hackathon_participation: Literal["Yes", "No"]
     gender: Literal["Male", "Female", "Other"]
     gender_other: str = Field(default="", max_length=80)
     shirt_size: Literal["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Other"]
     shirt_size_other: str = Field(default="", max_length=80)
-    pronouns: Literal["He / Him", "She / Her", "They / Them", "Other"]
+    pronouns: Literal["He / Him", "She / Her", "They / Them", "Other", ""] = ""
     pronouns_other: str = Field(default="", max_length=80)
     dietary_notes: Literal["Vegetarian", "Vegan", "Celiac Disease", "Allergies", "Kosher", "Halal"]
     mlh_code_of_conduct: bool
