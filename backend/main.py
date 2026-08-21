@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime, timezone
@@ -19,6 +20,7 @@ logger = logging.getLogger("wolfhacks")
 app = FastAPI(title="WolfHacks API")
 GOOGLE_SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "service-account.json")
+SERVICE_ACCOUNT_JSON = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "")
 SPREADSHEET_ID = os.getenv(
     "GOOGLE_SHEETS_SPREADSHEET_ID",
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
@@ -83,22 +85,30 @@ class Application(BaseModel):
 
 
 def get_sheets_service():
-    if not os.path.exists(SERVICE_ACCOUNT_FILE):
+    if SERVICE_ACCOUNT_JSON:
+        credentials = service_account.Credentials.from_service_account_info(
+            json.loads(SERVICE_ACCOUNT_JSON),
+            scopes=[GOOGLE_SHEETS_SCOPE],
+        )
+    elif os.path.exists(SERVICE_ACCOUNT_FILE):
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE,
+            scopes=[GOOGLE_SHEETS_SCOPE],
+        )
+    else:
         logger.warning(
-            "Google Sheets service account file not found at %s", SERVICE_ACCOUNT_FILE
+            "No Google Sheets credentials found (checked GOOGLE_SERVICE_ACCOUNT_JSON and %s)",
+            SERVICE_ACCOUNT_FILE,
         )
         raise HTTPException(
             status_code=503,
             detail=(
-                "Google Sheets is not configured. Set GOOGLE_SERVICE_ACCOUNT_FILE "
-                "to the service-account JSON path and share the spreadsheet with that account."
+                "Google Sheets is not configured. Set GOOGLE_SERVICE_ACCOUNT_JSON (the key file's "
+                "contents) or GOOGLE_SERVICE_ACCOUNT_FILE (a path to it), and share the spreadsheet "
+                "with that service account."
             ),
         )
 
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
-        scopes=[GOOGLE_SHEETS_SCOPE],
-    )
     credentials.refresh(Request())
     return build("sheets", "v4", credentials=credentials, cache_discovery=False)
 
@@ -137,7 +147,9 @@ def health():
     return {
         "status": "ok",
         "storage": "google-sheets",
-        "configured": bool(SPREADSHEET_ID and os.path.exists(SERVICE_ACCOUNT_FILE)),
+        "configured": bool(
+            SPREADSHEET_ID and (SERVICE_ACCOUNT_JSON or os.path.exists(SERVICE_ACCOUNT_FILE))
+        ),
     }
 
 

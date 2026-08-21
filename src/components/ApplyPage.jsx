@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import ThemeToggle from './ThemeToggle.jsx';
 import Starfield from './Starfield.jsx';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8000' : '');
 const AGE_ERROR = 'You must be at least 18 years old to participate.';
 const US_PHONE_PATTERN = /^\([2-9]\d{2}\) [2-9]\d{2}-\d{4}$/;
 const DISCORD_USERNAME_PATTERN = /^@(?!.*\.\.)[a-z0-9_.]{2,32}$/;
