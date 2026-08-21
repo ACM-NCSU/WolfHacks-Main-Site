@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import ThemeToggle from './ThemeToggle.jsx';
 import Starfield from './Starfield.jsx';
@@ -11,7 +11,13 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SCHOOLS_CSV_URL = 'https://raw.githubusercontent.com/MLH/mlh-policies/main/schools.csv';
 const ISO_COUNTRY_CODES = 'AF AX AL DZ AS AD AO AI AQ AG AR AM AW AU AT AZ BS BH BD BB BY BE BZ BJ BM BT BO BQ BA BW BV BR IO BN BG BF BI CV KH CM CA KY CF CD CL CN CX CC CO KM CG CK CR CI HR CU CW CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FK FO FJ FI FR GF PF TF GA GM GE DE GH GI GR GL GD GP GU GT GG GN GW GY HT HM VA HN HK HU IS IN ID IR IQ IE IM IL IT JM JP JE JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MQ MR MU YT MX FM MD MC MN ME MS MA MZ MM NA NR NP NL NC NZ NI NE NG NU NF MK MP NO OM PK PW PS PA PG PY PE PH PN PL PT PR QA RE RO RU RW BL SH KN LC MF PM VC WS SM ST SA SN RS SC SL SG SX SK SI SB SO ZA GS SS ES LK SD SR SJ SE CH SY TW TJ TZ TH TL TG TK TO TT TN TR TM TC TV UG UA AE GB US UM UY UZ VU VE VN VG VI WF EH YE ZM ZW'.split(' ');
 const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
-const countryOptions = ISO_COUNTRY_CODES.map((code) => ({ code, name: countryNames.of(code) })).sort((a, b) => a.name.localeCompare(b.name));
+const PINNED_COUNTRY = 'United States';
+const countryOptions = (() => {
+  const all = ISO_COUNTRY_CODES.map((code) => ({ code, name: countryNames.of(code) })).sort((a, b) => a.name.localeCompare(b.name));
+  const pinned = all.filter((country) => country.name === PINNED_COUNTRY);
+  const rest = all.filter((country) => country.name !== PINNED_COUNTRY);
+  return [...pinned, ...rest];
+})();
 
 const initialForm = {
   first_name: '',
@@ -53,12 +59,17 @@ function formatDiscordUsername(value) {
   return username ? `@${username}` : '';
 }
 
+const PINNED_UNIVERSITY = 'North Carolina State University';
+
 function parseSchoolsCsv(csv) {
-  return [...csv.matchAll(/"((?:""|[^"])*)"/g)]
+  const schools = [...csv.matchAll(/"((?:""|[^"])*)"/g)]
     .map((match) => match[1].replace(/""/g, ' ').replace(/\s+/g, ' ').trim())
     .filter(Boolean)
     .filter((school) => school !== 'Below is the *' && !school.startsWith('Below is a list of all schools that we\'ve manually verified.'))
-    .filter((school, index, schools) => schools.indexOf(school) === index);
+    .filter((school, index, list) => list.indexOf(school) === index);
+  const pinned = schools.filter((school) => school.toLowerCase() === PINNED_UNIVERSITY.toLowerCase());
+  const rest = schools.filter((school) => school.toLowerCase() !== PINNED_UNIVERSITY.toLowerCase());
+  return pinned.length ? [PINNED_UNIVERSITY, ...rest] : [PINNED_UNIVERSITY, ...schools];
 }
 
 const dropdownStyles = `
@@ -98,7 +109,73 @@ const dropdownStyles = `
   .application-form__dropdown-item--selected {
     background-color: var(--color-primary, #4a7bff);
   }
+
+  .application-form__searchable--select input {
+    cursor: pointer;
+    padding-right: 34px;
+  }
+
+  .application-form__searchable--select::after {
+    content: '\\25BE';
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    color: var(--paper, #fff);
+    pointer-events: none;
+    font-size: 12px;
+  }
 `;
+
+function SelectField({ name, value, onChange, options, placeholder = 'Select an option', disabled = false }) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setOpen(false);
+    }
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  function select(option) {
+    onChange(name, option);
+    setOpen(false);
+  }
+
+  return (
+    <div className="application-form__searchable application-form__searchable--select" ref={wrapperRef}>
+      <input
+        type="text"
+        value={value}
+        readOnly
+        onClick={() => !disabled && setOpen((current) => !current)}
+        placeholder={placeholder}
+        disabled={disabled}
+      />
+      {open && (
+        <div className="application-form__dropdown">
+          {options.map((option) => (
+            <div
+              key={option}
+              onClick={() => select(option)}
+              className={`application-form__dropdown-item ${value === option ? 'application-form__dropdown-item--selected' : ''}`}
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ApplyPage() {
   const [form, setForm] = useState(initialForm);
@@ -165,7 +242,8 @@ export default function ApplyPage() {
       return 'This field is required.';
     }
 
-    if (name === 'age' && text) {
+    if (name === 'age') {
+      if (!text) return 'This field is required.';
       if (!/^\d+$/.test(text)) {
         return 'Please enter a valid age.';
       }
@@ -214,16 +292,14 @@ export default function ApplyPage() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  function updateField(event) {
-    const { name, value } = event.target;
-    const nextValue = name === 'age'? value.replace(/\D/g, '').slice(0, 2): name === 'phone_number'? formatUSPhoneNumber(value): name === 'discord_username'? formatDiscordUsername(value): event.target.type === 'checkbox'? event.target.checked: value;
+  function setFieldValue(name, nextValue) {
     const nextForm = { ...form, [name]: nextValue };
     if (name === 'shirt_size' && nextValue !== 'Other') nextForm.shirt_size_other = '';
     if (name === 'gender' && nextValue !== 'Other') nextForm.gender_other = '';
     if (name === 'pronouns' && nextValue !== 'Other') nextForm.pronouns_other = '';
     if (name === 'dietary_notes' && nextValue !== 'Allergies' && nextValue !== 'Other') nextForm.dietary_notes_other = '';
     setForm(nextForm);
-    
+
     // For optional fields (classification, major, university), only show error if value is invalid, not if empty
     const optionalFields = ['classification', 'major', 'university'];
     if (optionalFields.includes(name)) {
@@ -240,6 +316,12 @@ export default function ApplyPage() {
     } else {
       setFieldErrors((current) => ({ ...current, [name]: nextValue ? getFieldError(name, nextValue) : '' }));
     }
+  }
+
+  function updateField(event) {
+    const { name, value } = event.target;
+    const nextValue = name === 'age'? value.replace(/\D/g, '').slice(0, 2): name === 'phone_number'? formatUSPhoneNumber(value): name === 'discord_username'? formatDiscordUsername(value): event.target.type === 'checkbox'? event.target.checked: value;
+    setFieldValue(name, nextValue);
 
     if (name === 'age') {
       const age = Number(nextValue);
@@ -353,37 +435,33 @@ export default function ApplyPage() {
                 <label><span className="application-form__question">Middle Name</span><input name="middle_name" value={form.middle_name} onChange={updateField} /></label>
                 <label><span className="application-form__question">Last Name<sup className="required-marker" aria-hidden="true">*</sup></span><input name="last_name" value={form.last_name} onChange={updateField} required />{fieldErrors.last_name && <span className="application-form__field-error">{fieldErrors.last_name}</span>}</label>
                 
-                <label><span className="application-form__question">Age</span><input type="text" name="age" value={form.age} onChange={updateField} inputMode="numeric" pattern="[0-9]*" maxLength="2" placeholder="Enter your age" />{fieldErrors.age && (<span className="application-form__field-error">{fieldErrors.age}</span>)}</label>
+                <label><span className="application-form__question">Age<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" name="age" value={form.age} onChange={updateField} inputMode="numeric" pattern="[0-9]*" maxLength="2" placeholder="Enter your age" required />{fieldErrors.age && (<span className="application-form__field-error">{fieldErrors.age}</span>)}</label>
 
                 <label><span className="application-form__question">Email<sup className="required-marker" aria-hidden="true">*</sup></span><input type="email" name="email" value={form.email} onChange={updateField} placeholder="username@example.com" required />{fieldErrors.email && <span className="application-form__field-error">{fieldErrors.email}</span>}</label>
                 <label id="country-residence-field" className="application-form__searchable"><span className="application-form__question">Country Of Residence<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={countrySearch || form.country_of_residence} onChange={handleCountrySearch} onFocus={openCountryDropdown} placeholder="Search or select your country" required />{countryDropdownOpen && filteredCountries.length > 0 && <div className="application-form__dropdown">{filteredCountries.map(({ code, name }) => <div key={code} onClick={() => selectCountry(name)} className={`application-form__dropdown-item ${form.country_of_residence === name ? 'application-form__dropdown-item--selected' : ''}`}>{name}</div>)}</div>}{fieldErrors.country_of_residence && <span className="application-form__field-error">{fieldErrors.country_of_residence}</span>}</label>
                 <label><span className="application-form__question">Discord Username<sup className="required-marker" aria-hidden="true">*</sup></span><input name="discord_username" value={form.discord_username} onChange={updateField} placeholder="@wolfhacker" maxLength="33" required />{fieldErrors.discord_username && <span className="application-form__field-error">{fieldErrors.discord_username}</span>}</label>
                 <label><span className="application-form__question">Phone Number<sup className="required-marker" aria-hidden="true">*</sup></span><input type="tel" name="phone_number" value={form.phone_number} onChange={updateField} inputMode="tel" placeholder="(555) 555-5555" maxLength="14" required />{fieldErrors.phone_number && <span className="application-form__field-error">{fieldErrors.phone_number}</span>}</label>
                 <label id="university-field" className="application-form__searchable"><span className="application-form__question">University</span><input type="text" value={universitySearch || form.university} onChange={handleUniversitySearch} onFocus={openUniversityDropdown} placeholder={schoolsStatus === 'loading' ? 'Loading schools...' : 'Search or select your university'} disabled={schoolsStatus !== 'ready'} />{universityDropdownOpen && filteredSchools.length > 0 && <div className="application-form__dropdown">{filteredSchools.map((school) => <div key={school} onClick={() => selectUniversity(school)} className={`application-form__dropdown-item ${form.university === school ? 'application-form__dropdown-item--selected' : ''}`}>{school}</div>)}</div>}{schoolsStatus === 'error' && <span className="application-form__field-error">We could not load the school list. Please refresh and try again.</span>}</label>
-                <label><span className="application-form__question">Classification</span><select name="classification" value={form.classification} onChange={updateField}><option value="" disabled></option><option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>Post-Graduate</option><option>Graduated</option></select>{fieldErrors.classification && <span className="application-form__field-error">{fieldErrors.classification}</span>}</label>
+                <label><span className="application-form__question">Classification</span><SelectField name="classification" value={form.classification} onChange={setFieldValue} placeholder="Select your classification" options={['Freshman', 'Sophomore', 'Junior', 'Senior', 'Post-Graduate', 'Graduated']} />{fieldErrors.classification && <span className="application-form__field-error">{fieldErrors.classification}</span>}</label>
                 <label><span className="application-form__question">Major</span><input name="major" value={form.major} onChange={updateField} />{fieldErrors.major && <span className="application-form__field-error">{fieldErrors.major}</span>}</label>
-                <label><span className="application-form__question">Have You Participated In A Hackathon Before?<sup className="required-marker" aria-hidden="true">*</sup></span><select name="hackathon_participation" value={form.hackathon_participation} onChange={updateField} required><option value="" disabled></option><option>Yes</option><option>No</option></select>{fieldErrors.hackathon_participation && <span className="application-form__field-error">{fieldErrors.hackathon_participation}</span>}</label>
-                <label><span className="application-form__question">Gender<sup className="required-marker" aria-hidden="true">*</sup></span><select name="gender" value={form.gender} onChange={updateField} required><option value="" disabled></option><option>Male</option><option>Female</option><option>Other</option></select>{fieldErrors.gender && <span className="application-form__field-error">{fieldErrors.gender}</span>}</label>
+                <label><span className="application-form__question">Have You Participated In A Hackathon Before?<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="hackathon_participation" value={form.hackathon_participation} onChange={setFieldValue} placeholder="Select an option" options={['Yes', 'No']} />{fieldErrors.hackathon_participation && <span className="application-form__field-error">{fieldErrors.hackathon_participation}</span>}</label>
+                <label><span className="application-form__question">Gender<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="gender" value={form.gender} onChange={setFieldValue} placeholder="Select an option" options={['Male', 'Female', 'Other']} />{fieldErrors.gender && <span className="application-form__field-error">{fieldErrors.gender}</span>}</label>
                 {form.gender === 'Other' && <label><span className="application-form__question">Please Specify Your Gender<sup className="required-marker" aria-hidden="true">*</sup></span><input name="gender_other" value={form.gender_other} onChange={updateField} required />{fieldErrors.gender_other && <span className="application-form__field-error">{fieldErrors.gender_other}</span>}</label>}
-                <label><span className="application-form__question">Shirt Size<sup className="required-marker" aria-hidden="true">*</sup></span><select name="shirt_size" value={form.shirt_size} onChange={updateField} required><option value="" disabled></option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>XXXL</option><option>Other</option></select>{fieldErrors.shirt_size && <span className="application-form__field-error">{fieldErrors.shirt_size}</span>}</label>
+                <label><span className="application-form__question">Shirt Size<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="shirt_size" value={form.shirt_size} onChange={setFieldValue} placeholder="Select your shirt size" options={['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Other']} />{fieldErrors.shirt_size && <span className="application-form__field-error">{fieldErrors.shirt_size}</span>}</label>
                 {form.shirt_size === 'Other' && <label><span className="application-form__question">Please Specify Your Shirt Size<sup className="required-marker" aria-hidden="true">*</sup></span><input name="shirt_size_other" value={form.shirt_size_other} onChange={updateField} required />{fieldErrors.shirt_size_other && <span className="application-form__field-error">{fieldErrors.shirt_size_other}</span>}</label>}
-                <label><span className="application-form__question">Pronouns</span><select name="pronouns" value={form.pronouns} onChange={updateField}><option value="" disabled></option><option>He / Him</option><option>She / Her</option><option>They / Them</option><option>Other</option></select></label>
+                <label><span className="application-form__question">Pronouns</span><SelectField name="pronouns" value={form.pronouns} onChange={setFieldValue} placeholder="Select an option" options={['He / Him', 'She / Her', 'They / Them', 'Other']} /></label>
                 {form.pronouns === 'Other' && <label><span className="application-form__question">Please Specify Your Pronouns</span><input name="pronouns_other" value={form.pronouns_other} onChange={updateField} />{fieldErrors.pronouns_other && <span className="application-form__field-error">{fieldErrors.pronouns_other}</span>}</label>}
               </div>
               
               <label>
                 <span className="application-form__question">Dietary Restrictions<sup className="required-marker" aria-hidden="true">*</sup></span>
-                <select name="dietary_notes" value={form.dietary_notes} onChange={updateField} required>
-                  <option value="" disabled></option>
-                  <option>None</option>
-                  <option>Vegetarian</option>
-                  <option>Vegan</option>
-                  <option>Celiac Disease</option>
-                  <option>Allergies</option>
-                  <option>Kosher</option>
-                  <option>Halal</option>
-                  <option>Other</option>
-                </select>
+                <SelectField
+                  name="dietary_notes"
+                  value={form.dietary_notes}
+                  onChange={setFieldValue}
+                  placeholder="Select your dietary restriction"
+                  options={['None', 'Vegetarian', 'Vegan', 'Celiac Disease', 'Allergies', 'Kosher', 'Halal', 'Other']}
+                />
                 {fieldErrors.dietary_notes && <span className="application-form__field-error">{fieldErrors.dietary_notes}</span>}
               </label>
 
