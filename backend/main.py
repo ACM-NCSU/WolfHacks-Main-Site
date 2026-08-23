@@ -46,7 +46,7 @@ SPREADSHEET_ID = os.getenv(
     "GOOGLE_SHEETS_SPREADSHEET_ID",
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
 )
-SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:X")
+SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:W")
 
 # Supabase connection fields. Writes go through the service role key so they
 # bypass RLS from the backend the same way the Sheets append bypasses sharing
@@ -99,28 +99,27 @@ class Application(BaseModel):
         max_length=14,
         pattern=r"^\([2-9]\d{2}\) [2-9]\d{2}-\d{4}$",
     )
+    currently_enrolled: Literal["Yes", "No"]
     university: str = Field(default="", max_length=160)
     classification: Literal["Freshman", "Sophomore", "Junior", "Senior", "Post-Graduate", "Graduated", ""] = ""
     major: str = Field(default="", max_length=120)
-    hackathon_participation: Literal["Yes", "No"]
-    gender: Literal["Male", "Female", "Other"]
+    hackathon_participation: Literal["Yes", "No", ""] = ""
+    gender: Literal["Male", "Female", "Other", ""] = ""
     gender_other: str = Field(default="", max_length=80)
-    shirt_size: Literal["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Other"]
-    shirt_size_other: str = Field(default="", max_length=80)
     pronouns: Literal["He / Him", "She / Her", "They / Them", "Other", ""] = ""
     pronouns_other: str = Field(default="", max_length=80)
-    dietary_notes: Literal["None", "Vegetarian", "Vegan", "Celiac Disease", "Allergies", "Kosher", "Halal", "Other"]
+    dietary_notes: Literal["None", "Vegetarian", "Vegan", "Celiac Disease", "Allergies", "Kosher", "Halal", "Other", ""] = ""
     dietary_notes_other: str = Field(default="", max_length=160)
     mlh_code_of_conduct: bool
     mlh_data_authorization: bool
     mlh_marketing_emails: bool = False
 
     @model_validator(mode="after")
-    def validate_other_shirt_size(self):
+    def validate_other_fields(self):
         if ".." in self.discord_username:
             raise ValueError("Discord usernames cannot contain consecutive periods")
-        if self.shirt_size == "Other" and not self.shirt_size_other.strip():
-            raise ValueError("Please enter your shirt size when Other is selected")
+        if self.currently_enrolled == "Yes" and not self.university.strip():
+            raise ValueError("Please provide your university when currently enrolled")
         if self.gender == "Other" and not self.gender_other.strip():
             raise ValueError("Please enter your gender when Other is selected")
         if self.pronouns == "Other" and not self.pronouns_other.strip():
@@ -198,14 +197,13 @@ def application_values(application: Application):
         values["country_of_residence"],
         values["discord_username"],
         values["phone_number"],
+        values["currently_enrolled"],
         values["university"],
         values["classification"],
         values["major"],
         values["hackathon_participation"],
         values["gender"],
         values["gender_other"],
-        values["shirt_size"],
-        values["shirt_size_other"],
         values["pronouns"],
         values["pronouns_other"],
         values["dietary_notes"],

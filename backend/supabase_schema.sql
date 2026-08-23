@@ -13,17 +13,16 @@ create table if not exists applications (
   country_of_residence text not null,
   discord_username text not null,
   phone_number text not null,
+  currently_enrolled text not null,
   university text default '',
   classification text default '',
   major text default '',
-  hackathon_participation text not null,
-  gender text not null,
+  hackathon_participation text default '',
+  gender text default '',
   gender_other text default '',
-  shirt_size text not null,
-  shirt_size_other text default '',
   pronouns text default '',
   pronouns_other text default '',
-  dietary_notes text not null,
+  dietary_notes text default '',
   dietary_notes_other text default '',
   mlh_code_of_conduct boolean not null,
   mlh_data_authorization boolean not null,
@@ -33,3 +32,26 @@ create table if not exists applications (
 -- RLS stays on by default; the backend writes with the service role key,
 -- which bypasses RLS, so no policy is required for inserts to work.
 alter table applications enable row level security;
+
+-- We stopped collecting shirt size; drop the columns if this script is
+-- being re-run against a table created before that change.
+alter table applications drop column if exists shirt_size;
+alter table applications drop column if exists shirt_size_other;
+
+-- We now ask applicants whether they're currently enrolled before showing
+-- university/classification/major; backfill existing rows from whether they
+-- already have a university on file, then enforce not-null going forward.
+alter table applications add column if not exists currently_enrolled text;
+update applications
+  set currently_enrolled = case when coalesce(university, '') <> '' then 'Yes' else 'No' end
+  where currently_enrolled is null;
+alter table applications alter column currently_enrolled set not null;
+
+-- Dietary restrictions, gender, and hackathon-participation are now optional
+-- on the form; relax the not-null constraints and default new rows to ''.
+alter table applications alter column hackathon_participation drop not null;
+alter table applications alter column hackathon_participation set default '';
+alter table applications alter column gender drop not null;
+alter table applications alter column gender set default '';
+alter table applications alter column dietary_notes drop not null;
+alter table applications alter column dietary_notes set default '';
