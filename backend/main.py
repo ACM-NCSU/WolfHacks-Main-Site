@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field, model_validator
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from supabase import create_client
 
 load_dotenv()
 
@@ -47,10 +48,12 @@ SPREADSHEET_ID = os.getenv(
 )
 SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:X")
 
-# Supabase connection fields (not yet wired into any route)
+# Supabase connection fields. Writes go through the service role key so they
+# bypass RLS from the backend the same way the Sheets append bypasses sharing
+# permissions via the service account.
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_APPLICATIONS_TABLE = os.getenv("SUPABASE_APPLICATIONS_TABLE", "applications")
 
 app.add_middleware(
     CORSMiddleware,
@@ -156,6 +159,33 @@ def get_sheets_service():
     return build("sheets", "v4", credentials=credentials, cache_discovery=False)
 
 
+def get_supabase_client():
+    if not (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY):
+        return None
+    return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+
+def write_to_supabase(application: Application):
+    client = get_supabase_client()
+    if client is None:
+        logger.warning(
+            "Skipping Supabase write: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not configured"
+        )
+        return
+
+    row = application.model_dump() if hasattr(application, "model_dump") else application.dict()
+    row["submitted_at"] = datetime.now(timezone.utc).isoformat()
+
+    try:
+        client.table(SUPABASE_APPLICATIONS_TABLE).insert(row).execute()
+    except Exception:
+        logger.exception(
+            "Failed to write application from %s to Supabase table %s",
+            application.email,
+            SUPABASE_APPLICATIONS_TABLE,
+        )
+
+
 def application_values(application: Application):
     values = application.model_dump() if hasattr(application, "model_dump") else application.dict()
     return [[
@@ -194,6 +224,7 @@ def health():
         "configured": bool(
             SPREADSHEET_ID and (SERVICE_ACCOUNT_JSON or os.path.exists(SERVICE_ACCOUNT_FILE))
         ),
+        "supabase_configured": bool(SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY),
     }
 
 
@@ -238,6 +269,8 @@ def create_application(application: Application):
         application.email,
         updated_range,
     )
+
+    write_to_supabase(application)
 
     return {
         "updated_range": updated_range,
