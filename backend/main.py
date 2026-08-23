@@ -114,8 +114,14 @@ class Application(BaseModel):
     mlh_data_authorization: bool
     mlh_marketing_emails: bool = False
 
+    # Honeypot: a field real applicants never see or fill, so anything here
+    # means a bot filled it in. Excluded from the rows written to Sheets/Supabase.
+    website: str = Field(default="", max_length=200, exclude=True)
+
     @model_validator(mode="after")
     def validate_other_fields(self):
+        if self.website:
+            raise ValueError("Spam detected")
         if ".." in self.discord_username:
             raise ValueError("Discord usernames cannot contain consecutive periods")
         if self.currently_enrolled == "Yes" and not self.university.strip():

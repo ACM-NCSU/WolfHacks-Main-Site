@@ -22,6 +22,7 @@ const countryOptions = (() => {
 })();
 
 const initialForm = {
+  website: '', // honeypot: real applicants never see or fill this field
   first_name: '',
   middle_name: '',
   last_name: '',
@@ -416,6 +417,14 @@ export default function ApplyPage() {
   async function submitApplication(event) {
     event.preventDefault();
     if (!validateFields(form)) return;
+
+    if (form.website) {
+      // Honeypot field: invisible to real applicants, so anything non-empty
+      // here means a bot filled it in. Pretend to succeed without submitting.
+      setStatus('submitted');
+      return;
+    }
+
     setStatus('submitting');
     setError('');
 
@@ -466,6 +475,10 @@ export default function ApplyPage() {
             </section>
           ) : (
             <form className="application-form" onSubmit={submitApplication} noValidate>
+              <div className="application-form__honeypot" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input id="website" name="website" type="text" value={form.website} onChange={updateField} tabIndex="-1" autoComplete="off" />
+              </div>
               <div className="application-form__grid">
                 <label><span className="application-form__question">First Name<sup className="required-marker" aria-hidden="true">*</sup></span><input name="first_name" value={form.first_name} onChange={updateField} maxLength="80" required />{fieldErrors.first_name && <span className="application-form__field-error">{fieldErrors.first_name}</span>}</label>
                 <label><span className="application-form__question">Middle Name</span><input name="middle_name" value={form.middle_name} onChange={updateField} maxLength="80" /></label>
