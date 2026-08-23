@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+import urllib.request
 from datetime import datetime, timezone
 from typing import Literal
 
@@ -32,9 +33,53 @@ _stderr_handler = logging.StreamHandler(sys.stderr)
 _stderr_handler.setFormatter(_log_formatter)
 _stderr_handler.setLevel(logging.WARNING)
 
+_handlers = [_stdout_handler, _stderr_handler]
+
+# Optional: ship the same log records to Axiom over its HTTP ingest API, so
+# they outlive Vercel's short log retention. Skipped entirely (no request
+# ever made) unless both env vars are set. Uses urllib instead of an extra
+# dependency since this is one small POST per log line.
+AXIOM_TOKEN = os.getenv("AXIOM_TOKEN", "")
+AXIOM_DATASET = os.getenv("AXIOM_DATASET", "")
+
+
+class AxiomHandler(logging.Handler):
+    def __init__(self, dataset: str, token: str):
+        super().__init__()
+        self._url = f"https://api.axiom.co/v1/datasets/{dataset}/ingest"
+        self._token = token
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            event = {
+                "_time": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+                "level": record.levelname,
+                "logger": record.name,
+                "message": record.getMessage(),
+            }
+            if record.exc_info:
+                event["stacktrace"] = self.formatException(record.exc_info)
+            request = urllib.request.Request(
+                self._url,
+                data=json.dumps([event]).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {self._token}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            urllib.request.urlopen(request, timeout=2)
+        except Exception:
+            # A logging failure must never break the request being handled.
+            pass
+
+
+if AXIOM_TOKEN and AXIOM_DATASET:
+    _handlers.append(AxiomHandler(AXIOM_DATASET, AXIOM_TOKEN))
+
 logging.basicConfig(
     level=os.getenv("WOLFHACKS_LOG_LEVEL", "INFO"),
-    handlers=[_stdout_handler, _stderr_handler],
+    handlers=_handlers,
 )
 logger = logging.getLogger("wolfhacks")
 
