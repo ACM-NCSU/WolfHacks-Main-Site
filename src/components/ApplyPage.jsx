@@ -5,6 +5,8 @@ import Starfield from './Starfield.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8000' : '');
 const AGE_ERROR = 'You must be at least 18 years old to participate.';
+const CONTACT_EMAIL = 'acmchapter-org@ncsu.edu';
+const GENERIC_SUBMIT_ERROR = `Application failed, please try again. If this continues to fail please contact us at ${CONTACT_EMAIL}.`;
 const US_PHONE_PATTERN = /^\([2-9]\d{2}\) [2-9]\d{2}-\d{4}$/;
 const DISCORD_USERNAME_PATTERN = /^@(?!.*\.\.)[a-z0-9_.]{2,32}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,14 +30,13 @@ const initialForm = {
   country_of_residence: '',
   discord_username: '',
   phone_number: '',
+  currently_enrolled: '',
   university: '',
   classification: '',
   major: '',
   hackathon_participation: '',
   gender: '',
   gender_other: '',
-  shirt_size: '',
-  shirt_size_other: '',
   pronouns: '',
   pronouns_other: '',
   dietary_notes: '',
@@ -242,7 +243,7 @@ export default function ApplyPage() {
   function getFieldError(name, value) {
     const text = String(value ?? '').trim();
 
-    if (['first_name', 'last_name', 'email', 'phone_number'].includes(name) && !text) {
+    if (['first_name', 'last_name', 'email', 'phone_number', 'discord_username'].includes(name) && !text) {
       return 'This field is required.';
     }
 
@@ -265,27 +266,44 @@ export default function ApplyPage() {
     if (name === 'discord_username' && text && !DISCORD_USERNAME_PATTERN.test(text)) {
       return 'Discord usernames must be 2 to 32 characters and can only contain lowercase letters (a to z), numbers (0 to 9), periods, and underscores. Consecutive periods (..) are not allowed. Uppercase letters, spaces, and other symbols are rejected.';
     }
-    if (['classification', 'hackathon_participation', 'gender', 'shirt_size'].includes(name) && !text) {
+    if (['classification', 'currently_enrolled'].includes(name) && !text) {
       return 'Please select an option.';
     }
-    if (name === 'country_of_residence' && !text) return 'Please select your country of residence.';
-    if (name === 'dietary_notes' && !text) return 'Please select your dietary restriction.';
-    if (name === 'shirt_size_other' && !text) return 'Please enter your shirt size.';
+    if (name === 'country_of_residence') {
+      if (!text) return 'Please select your country of residence.';
+      if (!countryOptions.some((country) => country.name === text)) {
+        return 'Please select a country from the list.';
+      }
+    }
+    if (name === 'university') {
+      if (!text) return 'Please search for and select your university.';
+      if (schoolsStatus === 'ready' && !schools.includes(text)) {
+        return 'Please select a university from the list.';
+      }
+    }
     if (name === 'gender_other' && !text) return 'Please specify your gender.';
     if (name === 'pronouns_other' && !text) return 'Please specify your pronouns.';
     if (name === 'dietary_notes_other' && !text) return 'Please provide additional dietary information.';
     if (name === 'mlh_code_of_conduct' && !value) return 'You must agree to the MLH Code of Conduct.';
     if (name === 'mlh_data_authorization' && !value) return 'You must authorize application data sharing.';
+
+    const maxLengths = {
+      first_name: 80, middle_name: 80, last_name: 80,
+      major: 120, gender_other: 80, pronouns_other: 80, dietary_notes_other: 160,
+    };
+    if (name in maxLengths && text.length > maxLengths[name]) {
+      return `Please shorten this to ${maxLengths[name]} characters or fewer.`;
+    }
     return '';
   }
 
   function validateFields(values) {
     const names = [
       'first_name', 'last_name', 'age', 'email', 'country_of_residence', 'discord_username', 'phone_number',
-      'hackathon_participation', 'gender', 'shirt_size', 'dietary_notes',
+      'currently_enrolled',
       'mlh_code_of_conduct', 'mlh_data_authorization',
     ];
-    if (values.shirt_size === 'Other') names.push('shirt_size_other');
+    if (values.currently_enrolled === 'Yes') names.push('university');
     if (values.gender === 'Other') names.push('gender_other');
     if (values.pronouns === 'Other') names.push('pronouns_other');
     if (values.dietary_notes === 'Allergies' || values.dietary_notes === 'Other') names.push('dietary_notes_other');
@@ -298,11 +316,23 @@ export default function ApplyPage() {
 
   function setFieldValue(name, nextValue) {
     const nextForm = { ...form, [name]: nextValue };
-    if (name === 'shirt_size' && nextValue !== 'Other') nextForm.shirt_size_other = '';
     if (name === 'gender' && nextValue !== 'Other') nextForm.gender_other = '';
     if (name === 'pronouns' && nextValue !== 'Other') nextForm.pronouns_other = '';
     if (name === 'dietary_notes' && nextValue !== 'Allergies' && nextValue !== 'Other') nextForm.dietary_notes_other = '';
+    if (name === 'currently_enrolled' && nextValue !== 'Yes') {
+      nextForm.university = '';
+      nextForm.classification = '';
+      nextForm.major = '';
+    }
     setForm(nextForm);
+
+    if (name === 'currently_enrolled' && nextValue !== 'Yes') {
+      setUniversitySearch('');
+      setFieldErrors((current) => {
+        const { university: _u, classification: _c, major: _m, ...rest } = current;
+        return rest;
+      });
+    }
 
     // For optional fields (classification, major, university), only show error if value is invalid, not if empty
     const optionalFields = ['classification', 'major', 'university'];
@@ -397,13 +427,15 @@ export default function ApplyPage() {
       });
 
       if (!response.ok) {
-        const detail = await response.json().catch(() => ({}));
-        throw new Error(detail.detail || 'We could not submit your application.');
+        const detail = await response.json().catch(() => null);
+        console.error('Application submission failed:', response.status, detail);
+        throw new Error('Submission failed');
       }
 
       window.location.assign('/thank-you');
     } catch (submissionError) {
-      setError(submissionError.message);
+      console.error(submissionError);
+      setError(GENERIC_SUBMIT_ERROR);
       setStatus('error');
     }
   }
@@ -435,30 +467,33 @@ export default function ApplyPage() {
           ) : (
             <form className="application-form" onSubmit={submitApplication} noValidate>
               <div className="application-form__grid">
-                <label><span className="application-form__question">First Name<sup className="required-marker" aria-hidden="true">*</sup></span><input name="first_name" value={form.first_name} onChange={updateField} required />{fieldErrors.first_name && <span className="application-form__field-error">{fieldErrors.first_name}</span>}</label>
-                <label><span className="application-form__question">Middle Name</span><input name="middle_name" value={form.middle_name} onChange={updateField} /></label>
-                <label><span className="application-form__question">Last Name<sup className="required-marker" aria-hidden="true">*</sup></span><input name="last_name" value={form.last_name} onChange={updateField} required />{fieldErrors.last_name && <span className="application-form__field-error">{fieldErrors.last_name}</span>}</label>
+                <label><span className="application-form__question">First Name<sup className="required-marker" aria-hidden="true">*</sup></span><input name="first_name" value={form.first_name} onChange={updateField} maxLength="80" required />{fieldErrors.first_name && <span className="application-form__field-error">{fieldErrors.first_name}</span>}</label>
+                <label><span className="application-form__question">Middle Name</span><input name="middle_name" value={form.middle_name} onChange={updateField} maxLength="80" /></label>
+                <label><span className="application-form__question">Last Name<sup className="required-marker" aria-hidden="true">*</sup></span><input name="last_name" value={form.last_name} onChange={updateField} maxLength="80" required />{fieldErrors.last_name && <span className="application-form__field-error">{fieldErrors.last_name}</span>}</label>
                 
                 <label><span className="application-form__question">Age<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" name="age" value={form.age} onChange={updateField} inputMode="numeric" pattern="[0-9]*" maxLength="2" placeholder="Enter your age" required />{fieldErrors.age && (<span className="application-form__field-error">{fieldErrors.age}</span>)}</label>
 
                 <label><span className="application-form__question">Email<sup className="required-marker" aria-hidden="true">*</sup></span><input type="email" name="email" value={form.email} onChange={updateField} placeholder="username@example.com" required />{fieldErrors.email && <span className="application-form__field-error">{fieldErrors.email}</span>}</label>
-                <label id="country-residence-field" className="application-form__searchable"><span className="application-form__question">Country Of Residence<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={countrySearch || form.country_of_residence} onChange={handleCountrySearch} onFocus={openCountryDropdown} placeholder="Search or select your country" required />{countryDropdownOpen && filteredCountries.length > 0 && <div className="application-form__dropdown">{filteredCountries.map(({ code, name }) => <div key={code} onClick={() => selectCountry(name)} className={`application-form__dropdown-item ${form.country_of_residence === name ? 'application-form__dropdown-item--selected' : ''}`}>{name}</div>)}</div>}{fieldErrors.country_of_residence && <span className="application-form__field-error">{fieldErrors.country_of_residence}</span>}</label>
+                <label id="country-residence-field" className="application-form__searchable"><span className="application-form__question">Country Of Residence<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={countrySearch || form.country_of_residence} onChange={handleCountrySearch} onFocus={openCountryDropdown} placeholder="Search or select your country" maxLength="100" required />{countryDropdownOpen && filteredCountries.length > 0 && <div className="application-form__dropdown">{filteredCountries.map(({ code, name }) => <div key={code} onClick={(event) => { event.preventDefault(); selectCountry(name); }} className={`application-form__dropdown-item ${form.country_of_residence === name ? 'application-form__dropdown-item--selected' : ''}`}>{name}</div>)}</div>}{fieldErrors.country_of_residence && <span className="application-form__field-error">{fieldErrors.country_of_residence}</span>}</label>
                 <label><span className="application-form__question">Discord Username<sup className="required-marker" aria-hidden="true">*</sup></span><input name="discord_username" value={form.discord_username} onChange={updateField} placeholder="@wolfhacker" maxLength="33" required />{fieldErrors.discord_username && <span className="application-form__field-error">{fieldErrors.discord_username}</span>}</label>
                 <label><span className="application-form__question">Phone Number<sup className="required-marker" aria-hidden="true">*</sup></span><input type="tel" name="phone_number" value={form.phone_number} onChange={updateField} inputMode="tel" placeholder="(555) 555-5555" maxLength="14" required />{fieldErrors.phone_number && <span className="application-form__field-error">{fieldErrors.phone_number}</span>}</label>
-                <label id="university-field" className="application-form__searchable"><span className="application-form__question">University</span><input type="text" value={universitySearch || form.university} onChange={handleUniversitySearch} onFocus={openUniversityDropdown} placeholder={schoolsStatus === 'loading' ? 'Loading schools...' : 'Search or select your university'} disabled={schoolsStatus !== 'ready'} />{universityDropdownOpen && filteredSchools.length > 0 && <div className="application-form__dropdown">{filteredSchools.map((school) => <div key={school} onClick={() => selectUniversity(school)} className={`application-form__dropdown-item ${form.university === school ? 'application-form__dropdown-item--selected' : ''}`}>{school}</div>)}</div>}{schoolsStatus === 'error' && <span className="application-form__field-error">We could not load the school list. Please refresh and try again.</span>}</label>
-                <label><span className="application-form__question">Classification</span><SelectField name="classification" value={form.classification} onChange={setFieldValue} placeholder="Select your classification" options={['Freshman', 'Sophomore', 'Junior', 'Senior', 'Post-Graduate', 'Graduated']} />{fieldErrors.classification && <span className="application-form__field-error">{fieldErrors.classification}</span>}</label>
-                <label><span className="application-form__question">Major</span><input name="major" value={form.major} onChange={updateField} />{fieldErrors.major && <span className="application-form__field-error">{fieldErrors.major}</span>}</label>
-                <label><span className="application-form__question">Have You Participated In A Hackathon Before?<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="hackathon_participation" value={form.hackathon_participation} onChange={setFieldValue} placeholder="Select an option" options={['Yes', 'No']} />{fieldErrors.hackathon_participation && <span className="application-form__field-error">{fieldErrors.hackathon_participation}</span>}</label>
-                <label><span className="application-form__question">Gender<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="gender" value={form.gender} onChange={setFieldValue} placeholder="Select an option" options={['Male', 'Female', 'Other']} />{fieldErrors.gender && <span className="application-form__field-error">{fieldErrors.gender}</span>}</label>
-                {form.gender === 'Other' && <label><span className="application-form__question">Please Specify Your Gender<sup className="required-marker" aria-hidden="true">*</sup></span><input name="gender_other" value={form.gender_other} onChange={updateField} required />{fieldErrors.gender_other && <span className="application-form__field-error">{fieldErrors.gender_other}</span>}</label>}
-                <label><span className="application-form__question">Shirt Size<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="shirt_size" value={form.shirt_size} onChange={setFieldValue} placeholder="Select your shirt size" options={['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Other']} />{fieldErrors.shirt_size && <span className="application-form__field-error">{fieldErrors.shirt_size}</span>}</label>
-                {form.shirt_size === 'Other' && <label><span className="application-form__question">Please Specify Your Shirt Size<sup className="required-marker" aria-hidden="true">*</sup></span><input name="shirt_size_other" value={form.shirt_size_other} onChange={updateField} required />{fieldErrors.shirt_size_other && <span className="application-form__field-error">{fieldErrors.shirt_size_other}</span>}</label>}
+                <label><span className="application-form__question">Are You Currently Enrolled In A University?<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="currently_enrolled" value={form.currently_enrolled} onChange={setFieldValue} placeholder="Select an option" options={['Yes', 'No']} />{fieldErrors.currently_enrolled && <span className="application-form__field-error">{fieldErrors.currently_enrolled}</span>}</label>
+                {form.currently_enrolled === 'Yes' && (
+                  <>
+                    <label id="university-field" className="application-form__searchable"><span className="application-form__question">University<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={universitySearch || form.university} onChange={handleUniversitySearch} onFocus={openUniversityDropdown} placeholder={schoolsStatus === 'loading' ? 'Loading schools...' : 'Search or select your university'} disabled={schoolsStatus !== 'ready'} maxLength="160" required />{universityDropdownOpen && filteredSchools.length > 0 && <div className="application-form__dropdown">{filteredSchools.map((school) => <div key={school} onClick={(event) => { event.preventDefault(); selectUniversity(school); }} className={`application-form__dropdown-item ${form.university === school ? 'application-form__dropdown-item--selected' : ''}`}>{school}</div>)}</div>}{fieldErrors.university && <span className="application-form__field-error">{fieldErrors.university}</span>}{schoolsStatus === 'error' && <span className="application-form__field-error">We could not load the school list. Please refresh and try again.</span>}</label>
+                    <label><span className="application-form__question">Classification</span><SelectField name="classification" value={form.classification} onChange={setFieldValue} placeholder="Select your classification" options={['Freshman', 'Sophomore', 'Junior', 'Senior', 'Post-Graduate', 'Graduated']} />{fieldErrors.classification && <span className="application-form__field-error">{fieldErrors.classification}</span>}</label>
+                    <label><span className="application-form__question">Major</span><input name="major" value={form.major} onChange={updateField} maxLength="120" />{fieldErrors.major && <span className="application-form__field-error">{fieldErrors.major}</span>}</label>
+                  </>
+                )}
+                <label><span className="application-form__question">Have You Participated In A Hackathon Before?</span><SelectField name="hackathon_participation" value={form.hackathon_participation} onChange={setFieldValue} placeholder="Select an option" options={['Yes', 'No']} />{fieldErrors.hackathon_participation && <span className="application-form__field-error">{fieldErrors.hackathon_participation}</span>}</label>
+                <label><span className="application-form__question">Gender</span><SelectField name="gender" value={form.gender} onChange={setFieldValue} placeholder="Select an option" options={['Male', 'Female', 'Other']} />{fieldErrors.gender && <span className="application-form__field-error">{fieldErrors.gender}</span>}</label>
+                {form.gender === 'Other' && <label><span className="application-form__question">Please Specify Your Gender<sup className="required-marker" aria-hidden="true">*</sup></span><input name="gender_other" value={form.gender_other} onChange={updateField} maxLength="80" required />{fieldErrors.gender_other && <span className="application-form__field-error">{fieldErrors.gender_other}</span>}</label>}
                 <label><span className="application-form__question">Pronouns</span><SelectField name="pronouns" value={form.pronouns} onChange={setFieldValue} placeholder="Select an option" options={['He / Him', 'She / Her', 'They / Them', 'Other']} /></label>
-                {form.pronouns === 'Other' && <label><span className="application-form__question">Please Specify Your Pronouns</span><input name="pronouns_other" value={form.pronouns_other} onChange={updateField} />{fieldErrors.pronouns_other && <span className="application-form__field-error">{fieldErrors.pronouns_other}</span>}</label>}
+                {form.pronouns === 'Other' && <label><span className="application-form__question">Please Specify Your Pronouns</span><input name="pronouns_other" value={form.pronouns_other} onChange={updateField} maxLength="80" />{fieldErrors.pronouns_other && <span className="application-form__field-error">{fieldErrors.pronouns_other}</span>}</label>}
               </div>
               
               <label>
-                <span className="application-form__question">Dietary Restrictions<sup className="required-marker" aria-hidden="true">*</sup></span>
+                <span className="application-form__question">Dietary Restrictions</span>
                 <SelectField
                   name="dietary_notes"
                   value={form.dietary_notes}
@@ -483,6 +518,7 @@ export default function ApplyPage() {
                     value={form.dietary_notes_other}
                     onChange={updateField}
                     placeholder={form.dietary_notes === 'Allergies' ? 'e.g., peanuts, tree nuts, shellfish' : 'Please specify'}
+                    maxLength="160"
                     required
                   />
                   {fieldErrors.dietary_notes_other && (
@@ -493,6 +529,7 @@ export default function ApplyPage() {
                 </label>
               )}
               <div className="application-form__consents">
+                <p className="application-form__mlh-notice">We are currently in the process of partnering with MLH. The following 3 checkboxes are for this partnership. If we do not end up partnering with MLH, your information will not be shared</p>
                 <label className="application-form__checkbox">
                   <input type="checkbox" name="mlh_code_of_conduct" checked={form.mlh_code_of_conduct} onChange={updateField} required />
                   <span>I have read and agree to the <a href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md" target="_blank" rel="noreferrer">MLH Code of Conduct</a>.<sup className="required-marker" aria-hidden="true">*</sup></span>

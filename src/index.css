@@ -308,6 +308,7 @@ a.acm-mention:hover { text-decoration: underline; }
 .application-form input:focus, .application-form select:focus, .application-form textarea:focus { outline: 2px solid var(--red); outline-offset: 1px; }
 .application-form textarea { resize: vertical; }
 .application-form__error { margin: 0 0 18px; color: #ff8b8b; }
+.application-form__mlh-notice { margin: 0 0 18px; color: var(--steel-dark); font-family: var(--font-body); font-size: 13px; line-height: 1.5; }
 .application-form__consents { border-top: 1px solid var(--line); padding-top: 18px; }
 .application-form__checkbox { display: grid !important; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 10px; margin-bottom: 16px !important; font-family: var(--font-body) !important; font-size: 14px !important; line-height: 1.5; }
 .application-form__checkbox input { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--red); }

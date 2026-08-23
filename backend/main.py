@@ -126,6 +126,10 @@ class Application(BaseModel):
             raise ValueError("Please enter your pronouns when Other is selected")
         if self.dietary_notes in ("Allergies", "Other") and not self.dietary_notes_other.strip():
             raise ValueError("Please provide additional dietary information")
+        if not self.mlh_code_of_conduct:
+            raise ValueError("You must agree to the MLH Code of Conduct")
+        if not self.mlh_data_authorization:
+            raise ValueError("You must authorize application data sharing")
         return self
 
 
