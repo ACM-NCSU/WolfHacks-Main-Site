@@ -10,6 +10,7 @@ const GENERIC_SUBMIT_ERROR = `Application failed, please try again. If this cont
 const US_PHONE_PATTERN = /^\([2-9]\d{2}\) [2-9]\d{2}-\d{4}$/;
 const DISCORD_USERNAME_PATTERN = /^@(?!.*\.\.)[a-z0-9_.]{2,32}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LINKEDIN_URL_PATTERN = /^https?:\/\/\S+\.\S+$/i;
 const SCHOOLS_CSV_URL = 'https://raw.githubusercontent.com/MLH/mlh-policies/main/schools.csv';
 const ISO_COUNTRY_CODES = 'AF AX AL DZ AS AD AO AI AQ AG AR AM AW AU AT AZ BS BH BD BB BY BE BZ BJ BM BT BO BQ BA BW BV BR IO BN BG BF BI CV KH CM CA KY CF CD CL CN CX CC CO KM CG CK CR CI HR CU CW CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FK FO FJ FI FR GF PF TF GA GM GE DE GH GI GR GL GD GP GU GT GG GN GW GY HT HM VA HN HK HU IS IN ID IR IQ IE IM IL IT JM JP JE JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MQ MR MU YT MX FM MD MC MN ME MS MA MZ MM NA NR NP NL NC NZ NI NE NG NU NF MK MP NO OM PK PW PS PA PG PY PE PH PN PL PT PR QA RE RO RU RW BL SH KN LC MF PM VC WS SM ST SA SN RS SC SL SG SX SK SI SB SO ZA GS SS ES LK SD SR SJ SE CH SY TW TJ TZ TH TL TG TK TO TT TN TR TM TC TV UG UA AE GB US UM UY UZ VU VE VN VG VI WF EH YE ZM ZW'.split(' ');
 const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
@@ -21,6 +22,49 @@ const countryOptions = (() => {
   return [...pinned, ...rest];
 })();
 
+const NOT_A_STUDENT = "I'm not currently a student";
+const LEVEL_OF_STUDY_OPTIONS = [
+  'Less than Secondary / High School',
+  'Secondary / High School',
+  'Undergraduate University (2 year - community college or similar)',
+  'Undergraduate University (3+ year)',
+  'Graduate University (Masters, Professional, Doctoral, etc)',
+  'Code School / Bootcamp',
+  'Other Vocational / Trade Program or Apprenticeship',
+  'Post Doctorate',
+  'Other',
+  NOT_A_STUDENT,
+  'Prefer not to answer',
+];
+
+const UNIVERSITY_LEVELS = [
+  'Undergraduate University (2 year - community college or similar)',
+  'Undergraduate University (3+ year)',
+  'Graduate University (Masters, Professional, Doctoral, etc)',
+  'Post Doctorate',
+];
+
+const MAJOR_OTHER = 'Other (please specify)';
+const MAJOR_OPTIONS = [
+  'Computer science, computer engineering, or software engineering',
+  'Another engineering discipline (such as civil, electrical, mechanical, etc.)',
+  'Information systems, information technology, or system administration',
+  'A natural science (such as biology, chemistry, physics, etc.)',
+  'Mathematics or statistics',
+  'Web development or web design',
+  'Business discipline (such as accounting, finance, marketing, etc.)',
+  'Humanities discipline (such as literature, history, philosophy, etc.)',
+  'Social science (such as anthropology, psychology, political science, etc.)',
+  'Fine arts or performing arts (such as graphic design, music, studio art, etc.)',
+  'Health science (such as nursing, pharmacy, radiology, etc.)',
+  MAJOR_OTHER,
+  'Undecided / No Declared Major',
+  'My school does not offer majors / primary areas of study',
+  'Prefer not to answer',
+];
+
+const PRONOUNS_OPTIONS = ['She/Her', 'He/Him', 'They/Them', 'She/They', 'He/They', 'Prefer Not to Answer', 'Other'];
+
 const initialForm = {
   website: '', // honeypot: real applicants never see or fill this field
   first_name: '',
@@ -31,10 +75,11 @@ const initialForm = {
   country_of_residence: '',
   discord_username: '',
   phone_number: '',
-  currently_enrolled: '',
+  linkedin_url: '',
   university: '',
   classification: '',
   major: '',
+  major_other: '',
   hackathon_participation: '',
   gender: '',
   gender_other: '',
@@ -267,7 +312,7 @@ export default function ApplyPage() {
     if (name === 'discord_username' && text && !DISCORD_USERNAME_PATTERN.test(text)) {
       return 'Discord usernames must be 2 to 32 characters and can only contain lowercase letters (a to z), numbers (0 to 9), periods, and underscores. Consecutive periods (..) are not allowed. Uppercase letters, spaces, and other symbols are rejected.';
     }
-    if (['classification', 'currently_enrolled'].includes(name) && !text) {
+    if (name === 'classification' && !text) {
       return 'Please select an option.';
     }
     if (name === 'country_of_residence') {
@@ -282,6 +327,10 @@ export default function ApplyPage() {
         return 'Please select a university from the list.';
       }
     }
+    if (name === 'major_other' && !text) return 'Please specify your major.';
+    if (name === 'linkedin_url' && text && !LINKEDIN_URL_PATTERN.test(text)) {
+      return 'Please enter a valid URL, such as https://www.linkedin.com/in/username.';
+    }
     if (name === 'gender_other' && !text) return 'Please specify your gender.';
     if (name === 'pronouns_other' && !text) return 'Please specify your pronouns.';
     if (name === 'dietary_notes_other' && !text) return 'Please provide additional dietary information.';
@@ -290,7 +339,7 @@ export default function ApplyPage() {
 
     const maxLengths = {
       first_name: 80, middle_name: 80, last_name: 80,
-      major: 120, gender_other: 80, pronouns_other: 80, dietary_notes_other: 160,
+      major_other: 120, linkedin_url: 200, gender_other: 80, pronouns_other: 80, dietary_notes_other: 160,
     };
     if (name in maxLengths && text.length > maxLengths[name]) {
       return `Please shorten this to ${maxLengths[name]} characters or fewer.`;
@@ -301,10 +350,12 @@ export default function ApplyPage() {
   function validateFields(values) {
     const names = [
       'first_name', 'last_name', 'age', 'email', 'country_of_residence', 'discord_username', 'phone_number',
-      'currently_enrolled',
+      'classification',
       'mlh_code_of_conduct', 'mlh_data_authorization',
     ];
-    if (values.currently_enrolled === 'Yes') names.push('university');
+    if (UNIVERSITY_LEVELS.includes(values.classification)) names.push('university');
+    if (values.major === MAJOR_OTHER) names.push('major_other');
+    if (values.linkedin_url) names.push('linkedin_url');
     if (values.gender === 'Other') names.push('gender_other');
     if (values.pronouns === 'Other') names.push('pronouns_other');
     if (values.dietary_notes === 'Allergies' || values.dietary_notes === 'Other') names.push('dietary_notes_other');
@@ -320,23 +371,20 @@ export default function ApplyPage() {
     if (name === 'gender' && nextValue !== 'Other') nextForm.gender_other = '';
     if (name === 'pronouns' && nextValue !== 'Other') nextForm.pronouns_other = '';
     if (name === 'dietary_notes' && nextValue !== 'Allergies' && nextValue !== 'Other') nextForm.dietary_notes_other = '';
-    if (name === 'currently_enrolled' && nextValue !== 'Yes') {
-      nextForm.university = '';
-      nextForm.classification = '';
-      nextForm.major = '';
-    }
+    if (name === 'major' && nextValue !== MAJOR_OTHER) nextForm.major_other = '';
+    if (name === 'classification' && !UNIVERSITY_LEVELS.includes(nextValue)) nextForm.university = '';
     setForm(nextForm);
 
-    if (name === 'currently_enrolled' && nextValue !== 'Yes') {
+    if (name === 'classification' && !UNIVERSITY_LEVELS.includes(nextValue)) {
       setUniversitySearch('');
       setFieldErrors((current) => {
-        const { university: _u, classification: _c, major: _m, ...rest } = current;
+        const { university: _u, ...rest } = current;
         return rest;
       });
     }
 
-    // For optional fields (classification, major, university), only show error if value is invalid, not if empty
-    const optionalFields = ['classification', 'major', 'university'];
+    // For optional fields (major, university), only show error if value is invalid, not if empty
+    const optionalFields = ['major', 'university'];
     if (optionalFields.includes(name)) {
       // Only validate if there's a value entered (for optional fields)
       if (nextValue) {
@@ -489,19 +537,18 @@ export default function ApplyPage() {
                 <label><span className="application-form__question">Email<sup className="required-marker" aria-hidden="true">*</sup></span><input type="email" name="email" value={form.email} onChange={updateField} placeholder="username@example.com" required />{fieldErrors.email && <span className="application-form__field-error">{fieldErrors.email}</span>}</label>
                 <label id="country-residence-field" className="application-form__searchable"><span className="application-form__question">Country Of Residence<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={countrySearch || form.country_of_residence} onChange={handleCountrySearch} onFocus={openCountryDropdown} placeholder="Search or select your country" maxLength="100" required />{countryDropdownOpen && filteredCountries.length > 0 && <div className="application-form__dropdown">{filteredCountries.map(({ code, name }) => <div key={code} onClick={(event) => { event.preventDefault(); selectCountry(name); }} className={`application-form__dropdown-item ${form.country_of_residence === name ? 'application-form__dropdown-item--selected' : ''}`}>{name}</div>)}</div>}{fieldErrors.country_of_residence && <span className="application-form__field-error">{fieldErrors.country_of_residence}</span>}</label>
                 <label><span className="application-form__question">Discord Username<sup className="required-marker" aria-hidden="true">*</sup></span><input name="discord_username" value={form.discord_username} onChange={updateField} placeholder="@wolfhacker" maxLength="33" required />{fieldErrors.discord_username && <span className="application-form__field-error">{fieldErrors.discord_username}</span>}</label>
+                <label><span className="application-form__question">LinkedIn URL</span><input type="url" name="linkedin_url" value={form.linkedin_url} onChange={updateField} placeholder="https://www.linkedin.com/in/username" maxLength="200" />{fieldErrors.linkedin_url && <span className="application-form__field-error">{fieldErrors.linkedin_url}</span>}</label>
                 <label><span className="application-form__question">Phone Number<sup className="required-marker" aria-hidden="true">*</sup></span><input type="tel" name="phone_number" value={form.phone_number} onChange={updateField} inputMode="tel" placeholder="(555) 555-5555" maxLength="14" required />{fieldErrors.phone_number && <span className="application-form__field-error">{fieldErrors.phone_number}</span>}</label>
-                <label><span className="application-form__question">Are You Currently Enrolled In A University?<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="currently_enrolled" value={form.currently_enrolled} onChange={setFieldValue} placeholder="Select an option" options={['Yes', 'No']} />{fieldErrors.currently_enrolled && <span className="application-form__field-error">{fieldErrors.currently_enrolled}</span>}</label>
-                {form.currently_enrolled === 'Yes' && (
-                  <>
-                    <label id="university-field" className="application-form__searchable"><span className="application-form__question">University<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={universitySearch || form.university} onChange={handleUniversitySearch} onFocus={openUniversityDropdown} placeholder={schoolsStatus === 'loading' ? 'Loading schools...' : 'Search or select your university'} disabled={schoolsStatus !== 'ready'} maxLength="160" required />{universityDropdownOpen && filteredSchools.length > 0 && <div className="application-form__dropdown">{filteredSchools.map((school) => <div key={school} onClick={(event) => { event.preventDefault(); selectUniversity(school); }} className={`application-form__dropdown-item ${form.university === school ? 'application-form__dropdown-item--selected' : ''}`}>{school}</div>)}</div>}{fieldErrors.university && <span className="application-form__field-error">{fieldErrors.university}</span>}{schoolsStatus === 'error' && <span className="application-form__field-error">We could not load the school list. Please refresh and try again.</span>}</label>
-                    <label><span className="application-form__question">Classification</span><SelectField name="classification" value={form.classification} onChange={setFieldValue} placeholder="Select your classification" options={['Freshman', 'Sophomore', 'Junior', 'Senior', 'Post-Graduate', 'Graduated']} />{fieldErrors.classification && <span className="application-form__field-error">{fieldErrors.classification}</span>}</label>
-                    <label><span className="application-form__question">Major</span><input name="major" value={form.major} onChange={updateField} maxLength="120" />{fieldErrors.major && <span className="application-form__field-error">{fieldErrors.major}</span>}</label>
-                  </>
+                <label><span className="application-form__question">Level Of Study<sup className="required-marker" aria-hidden="true">*</sup></span><SelectField name="classification" value={form.classification} onChange={setFieldValue} placeholder="Select an option" options={LEVEL_OF_STUDY_OPTIONS} />{fieldErrors.classification && <span className="application-form__field-error">{fieldErrors.classification}</span>}</label>
+                {UNIVERSITY_LEVELS.includes(form.classification) && (
+                  <label id="university-field" className="application-form__searchable"><span className="application-form__question">University<sup className="required-marker" aria-hidden="true">*</sup></span><input type="text" value={universitySearch || form.university} onChange={handleUniversitySearch} onFocus={openUniversityDropdown} placeholder={schoolsStatus === 'loading' ? 'Loading schools...' : 'Search or select your university'} disabled={schoolsStatus !== 'ready'} maxLength="160" required />{universityDropdownOpen && filteredSchools.length > 0 && <div className="application-form__dropdown">{filteredSchools.map((school) => <div key={school} onClick={(event) => { event.preventDefault(); selectUniversity(school); }} className={`application-form__dropdown-item ${form.university === school ? 'application-form__dropdown-item--selected' : ''}`}>{school}</div>)}</div>}{fieldErrors.university && <span className="application-form__field-error">{fieldErrors.university}</span>}{schoolsStatus === 'error' && <span className="application-form__field-error">We could not load the school list. Please refresh and try again.</span>}</label>
                 )}
+                <label><span className="application-form__question">Major / Field Of Study</span><SelectField name="major" value={form.major} onChange={setFieldValue} placeholder="Select an option" options={MAJOR_OPTIONS} />{fieldErrors.major && <span className="application-form__field-error">{fieldErrors.major}</span>}</label>
+                {form.major === MAJOR_OTHER && <label><span className="application-form__question">Please Specify Your Major<sup className="required-marker" aria-hidden="true">*</sup></span><input name="major_other" value={form.major_other} onChange={updateField} maxLength="120" required />{fieldErrors.major_other && <span className="application-form__field-error">{fieldErrors.major_other}</span>}</label>}
                 <label><span className="application-form__question">Have You Participated In A Hackathon Before?</span><SelectField name="hackathon_participation" value={form.hackathon_participation} onChange={setFieldValue} placeholder="Select an option" options={['Yes', 'No']} />{fieldErrors.hackathon_participation && <span className="application-form__field-error">{fieldErrors.hackathon_participation}</span>}</label>
                 <label><span className="application-form__question">Gender</span><SelectField name="gender" value={form.gender} onChange={setFieldValue} placeholder="Select an option" options={['Male', 'Female', 'Other']} />{fieldErrors.gender && <span className="application-form__field-error">{fieldErrors.gender}</span>}</label>
                 {form.gender === 'Other' && <label><span className="application-form__question">Please Specify Your Gender<sup className="required-marker" aria-hidden="true">*</sup></span><input name="gender_other" value={form.gender_other} onChange={updateField} maxLength="80" required />{fieldErrors.gender_other && <span className="application-form__field-error">{fieldErrors.gender_other}</span>}</label>}
-                <label><span className="application-form__question">Pronouns</span><SelectField name="pronouns" value={form.pronouns} onChange={setFieldValue} placeholder="Select an option" options={['He / Him', 'She / Her', 'They / Them', 'Other']} /></label>
+                <label><span className="application-form__question">Pronouns</span><SelectField name="pronouns" value={form.pronouns} onChange={setFieldValue} placeholder="Select an option" options={PRONOUNS_OPTIONS} /></label>
                 {form.pronouns === 'Other' && <label><span className="application-form__question">Please Specify Your Pronouns</span><input name="pronouns_other" value={form.pronouns_other} onChange={updateField} maxLength="80" />{fieldErrors.pronouns_other && <span className="application-form__field-error">{fieldErrors.pronouns_other}</span>}</label>}
               </div>
               

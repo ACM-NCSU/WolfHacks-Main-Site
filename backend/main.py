@@ -84,6 +84,12 @@ logging.basicConfig(
 logger = logging.getLogger("wolfhacks")
 
 app = FastAPI(title="WolfHacks API")
+UNIVERSITY_LEVELS = {
+    "Undergraduate University (2 year - community college or similar)",
+    "Undergraduate University (3+ year)",
+    "Graduate University (Masters, Professional, Doctoral, etc)",
+    "Post Doctorate",
+}
 GOOGLE_SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "service-account.json")
 SERVICE_ACCOUNT_JSON = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "")
@@ -91,7 +97,7 @@ SPREADSHEET_ID = os.getenv(
     "GOOGLE_SHEETS_SPREADSHEET_ID",
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
 )
-SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:W")
+SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:X")
 
 # Supabase connection fields. Writes go through the service role key so they
 # bypass RLS from the backend the same way the Sheets append bypasses sharing
@@ -144,14 +150,44 @@ class Application(BaseModel):
         max_length=14,
         pattern=r"^\([2-9]\d{2}\) [2-9]\d{2}-\d{4}$",
     )
-    currently_enrolled: Literal["Yes", "No"]
+    linkedin_url: str = Field(default="", max_length=200, pattern=r"^$|^https?://\S+\.\S+$")
+    classification: Literal[
+        "Less than Secondary / High School",
+        "Secondary / High School",
+        "Undergraduate University (2 year - community college or similar)",
+        "Undergraduate University (3+ year)",
+        "Graduate University (Masters, Professional, Doctoral, etc)",
+        "Code School / Bootcamp",
+        "Other Vocational / Trade Program or Apprenticeship",
+        "Post Doctorate",
+        "Other",
+        "I'm not currently a student",
+        "Prefer not to answer",
+    ]
     university: str = Field(default="", max_length=160)
-    classification: Literal["Freshman", "Sophomore", "Junior", "Senior", "Post-Graduate", "Graduated", ""] = ""
-    major: str = Field(default="", max_length=120)
+    major: Literal[
+        "Computer science, computer engineering, or software engineering",
+        "Another engineering discipline (such as civil, electrical, mechanical, etc.)",
+        "Information systems, information technology, or system administration",
+        "A natural science (such as biology, chemistry, physics, etc.)",
+        "Mathematics or statistics",
+        "Web development or web design",
+        "Business discipline (such as accounting, finance, marketing, etc.)",
+        "Humanities discipline (such as literature, history, philosophy, etc.)",
+        "Social science (such as anthropology, psychology, political science, etc.)",
+        "Fine arts or performing arts (such as graphic design, music, studio art, etc.)",
+        "Health science (such as nursing, pharmacy, radiology, etc.)",
+        "Other (please specify)",
+        "Undecided / No Declared Major",
+        "My school does not offer majors / primary areas of study",
+        "Prefer not to answer",
+        "",
+    ] = ""
+    major_other: str = Field(default="", max_length=120)
     hackathon_participation: Literal["Yes", "No", ""] = ""
     gender: Literal["Male", "Female", "Other", ""] = ""
     gender_other: str = Field(default="", max_length=80)
-    pronouns: Literal["He / Him", "She / Her", "They / Them", "Other", ""] = ""
+    pronouns: Literal["She/Her", "He/Him", "They/Them", "She/They", "He/They", "Prefer Not to Answer", "Other", ""] = ""
     pronouns_other: str = Field(default="", max_length=80)
     dietary_notes: Literal["None", "Vegetarian", "Vegan", "Celiac Disease", "Allergies", "Kosher", "Halal", "Other", ""] = ""
     dietary_notes_other: str = Field(default="", max_length=160)
@@ -169,8 +205,10 @@ class Application(BaseModel):
             raise ValueError("Spam detected")
         if ".." in self.discord_username:
             raise ValueError("Discord usernames cannot contain consecutive periods")
-        if self.currently_enrolled == "Yes" and not self.university.strip():
-            raise ValueError("Please provide your university when currently enrolled")
+        if self.classification in UNIVERSITY_LEVELS and not self.university.strip():
+            raise ValueError("Please provide your university")
+        if self.major == "Other (please specify)" and not self.major_other.strip():
+            raise ValueError("Please specify your major")
         if self.gender == "Other" and not self.gender_other.strip():
             raise ValueError("Please enter your gender when Other is selected")
         if self.pronouns == "Other" and not self.pronouns_other.strip():
@@ -251,11 +289,12 @@ def application_values(application: Application):
         values["email"],
         values["country_of_residence"],
         values["discord_username"],
+        values["linkedin_url"],
         values["phone_number"],
-        values["currently_enrolled"],
-        values["university"],
         values["classification"],
+        values["university"],
         values["major"],
+        values["major_other"],
         values["hackathon_participation"],
         values["gender"],
         values["gender_other"],

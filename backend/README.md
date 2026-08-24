@@ -60,7 +60,7 @@ cp .env.example .env
 # Google Sheets
 GOOGLE_SERVICE_ACCOUNT_FILE=C:\secrets\wolfhacks-sheets.json
 GOOGLE_SHEETS_SPREADSHEET_ID=1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M
-GOOGLE_SHEETS_RANGE=Applications!A:W
+GOOGLE_SHEETS_RANGE=Applications!A:X
 
 # Supabase
 SUPABASE_URL=https://<project-ref>.supabase.co

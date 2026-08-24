@@ -12,11 +12,12 @@ create table if not exists applications (
   email text not null,
   country_of_residence text not null,
   discord_username text not null,
+  linkedin_url text default '',
   phone_number text not null,
-  currently_enrolled text not null,
+  classification text not null,
   university text default '',
-  classification text default '',
   major text default '',
+  major_other text default '',
   hackathon_participation text default '',
   gender text default '',
   gender_other text default '',
@@ -55,3 +56,18 @@ alter table applications alter column gender drop not null;
 alter table applications alter column gender set default '';
 alter table applications alter column dietary_notes drop not null;
 alter table applications alter column dietary_notes set default '';
+
+-- Replaced the enrolled Yes/No question with a required "Level of Study"
+-- question, reusing the classification column for it. Backfill any historical
+-- empty values before enforcing not-null so the migration doesn't fail on
+-- pre-existing rows.
+alter table applications drop column if exists currently_enrolled;
+update applications set classification = 'Prefer not to answer' where coalesce(classification, '') = '';
+alter table applications alter column classification set not null;
+alter table applications alter column classification drop default;
+
+-- Major is now a fixed dropdown (with an "Other (please specify)" free-text
+-- companion column) instead of free text, and stays optional. Also added an
+-- optional LinkedIn URL field for connecting applicants with sponsors.
+alter table applications add column if not exists major_other text default '';
+alter table applications add column if not exists linkedin_url text default '';
