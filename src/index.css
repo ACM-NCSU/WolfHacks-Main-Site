@@ -241,18 +241,22 @@ a.acm-mention:hover { text-decoration: underline; }
 }
 
 .hero__logo-slot {
-  width: 104px;
-  height: 104px;
+  height: 84px;
   margin: 0;
   flex-shrink: 0;
 }
 
-.hero__logo-slot img {
-  display: block;
-  width: 100%;
+.hero__logo {
+  display: none;
   height: 100%;
-  object-fit: contain;
+  width: auto;
+  margin: 0;
+  filter: drop-shadow(0 0 14px rgba(204, 0, 0, 0.25));
 }
+
+.hero__logo--dark { display: block; }
+[data-theme='light'] .hero__logo--dark { display: none; }
+[data-theme='light'] .hero__logo--light { display: block; }
 
 .section__heading {
   font-family: var(--font-display);
@@ -766,7 +770,7 @@ a.acm-mention:hover { text-decoration: underline; }
 @media (min-width: 768px) {
   .hero__badges { min-height: 132px; }
   .hero__acm-badge { width: 108px; }
-  .hero__logo-slot { width: 132px; height: 132px; }
+  .hero__logo-slot { height: 108px; }
 
   .footer__grid {
     grid-template-columns: 1fr auto;

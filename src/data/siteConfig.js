@@ -35,10 +35,11 @@ const siteConfig = {
         'Registration is open. Complete your application below to join WolfHacks 2026.',
       preRegisterUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfVB5eG-ZD8I3EEUlYpEZzlQDA5_FBwCq3Noicah8exDBY4Yw/viewform',
       applicationUrl: '/apply',
-      // TODO: once the WolfHacks logo is ready, drop the file in public/images/
-      // and set this to its filename (e.g. 'images/wolfhacks-logo.png'). It will
-      // appear next to the ACM badge automatically — the space is already reserved.
-      logoUrl: null,
+      // Two theme-matched variants: light art on a dark card for dark mode,
+      // dark art on a light card for light mode. Hero.jsx renders both and
+      // CSS swaps which is visible based on [data-theme], so there's no flash.
+      logoUrlLight: 'images/lightmodelogo-transparent.png',
+      logoUrlDark: 'images/darkmodelogo-transparent.png',
     },
 
     faq: {
