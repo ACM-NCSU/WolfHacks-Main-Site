@@ -16,16 +16,8 @@ const siteConfig = {
       url: 'https://acm-ncsu.github.io/about/',
     },
 
-    // MLH trust badge, same mechanism as the original boilerplate template.
-    // year/color "2017"/"white" is the only combo that currently resolves to a
-    // real image at MLH's asset host (verified directly). It's their generic
-    // demo badge, not tied to a real date. Region "na" is correct for NC State.
-    // Swap these once you generate your real badge from MLH's organizer dashboard.
-    trustBadge: {
-      year: '2017',
-      region: 'na',
-      color: 'white',
-    },
+    codeOfConduct:
+      'https://github.com/yashovardhan/mlh-hackathon-organizer-guide/blob/e1f777578c8c5c905dcebc5b506c1f93f4c613b4/CONDUCT.md',
 
     hero: {
       eyebrowPrefix: 'ACM AT NC STATE',
