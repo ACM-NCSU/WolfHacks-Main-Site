@@ -8,7 +8,7 @@ const siteConfig = {
   event: {
     name: 'WolfHacks',
     date: 'Oct 3-4, 2026',
-    location: 'Centennial Campus, Raleigh, NC',
+    location: 'Duke Energy Hall, Raleigh, NC',
     countdownTarget: '2026-10-03T09:00:00',
 
     acm: {
@@ -60,7 +60,7 @@ const siteConfig = {
         {
           question: 'Where is the event, and do I have to stay overnight?',
           answer:
-            "Centennial Campus, NC State University, Raleigh, NC. The event is in person. Exact building and room details go out closer to the event. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. You don't have to stay overnight — you're welcome to leave and come back if you'd prefer.",
+            "Duke Energy Hall, NC State University, Raleigh, NC. The event is in person. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. You don't have to stay overnight — you're welcome to leave and come back if you'd prefer.",
         },
         {
           question: 'What kind of activities will there be?',
@@ -83,6 +83,30 @@ const siteConfig = {
         },
       ],
     },
+
+    sponsors: [
+      {
+        name: 'Institute for Advanced Analytics',
+        logoUrl: 'images/sponsors/institute-for-advanced-analytics.png',
+        // Sponsor's black wordmark is invisible on the dark theme's card, so
+        // a recolored (black -> cream) variant swaps in there. See darkLogoUrl
+        // usage in Sponsors.jsx.
+        logoUrlDark: 'images/sponsors/institute-for-advanced-analytics-dark.png',
+        url: 'https://analytics.ncsu.edu/',
+      },
+      {
+        name: 'AI @ NC State',
+        logoUrl: 'images/sponsors/ai-at-nc-state.png',
+        logoUrlDark: 'images/sponsors/ai-at-nc-state-dark.png',
+        url: 'https://ai.ncsu.edu/',
+      },
+      {
+        name: 'Pure Buttons',
+        logoUrl: 'images/sponsors/pure-buttons.png',
+        url: 'https://www.purebuttons.com/',
+      },
+    ],
+    sponsorsMoreComingSoon: true,
 
     registerThanksMessage: "You'll receive more information closer to the hackathon.",
   },
