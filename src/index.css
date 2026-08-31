@@ -588,7 +588,12 @@ a.acm-mention:hover { text-decoration: underline; }
   50%      { transform: translateY(4px); }
 }
 
-/* ---------- Sponsors ---------- */
+/* ---------- Sponsors ----------
+   Cards read as waypoints on the site's night trail: each one carries the
+   same rotated-diamond stud used to seam sections together (.section::after),
+   and lights up with the Wolfpack-red glow already used on the wolf mark and
+   wordmark, so hovering a sponsor feels like the rest of the page waking up
+   rather than a one-off card effect. */
 
 .sponsors {
   padding-top: 5rem;
@@ -596,54 +601,125 @@ a.acm-mention:hover { text-decoration: underline; }
 
 .sponsors__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
   align-items: stretch;
-  margin-top: 2rem;
-  max-width: 72ch; 
+  margin-top: 2.5rem;
+  max-width: 880px;
 }
 
 .sponsor {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 140px;
-  padding: 1.25rem 1rem;
-  background: rgba(245, 241, 232, 0.25); 
+  gap: 14px;
+  min-height: 148px;
+  padding: 1.75rem 1.25rem 1.4rem;
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: 8px;
   text-align: center;
   text-decoration: none;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.sponsor:hover {
+.sponsor::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  background: var(--red);
+  opacity: 0.75;
+  transform: rotate(45deg);
+  transition: opacity 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sponsor:not(.sponsor--placeholder):hover {
   border-color: var(--red);
+  box-shadow: 0 16px 32px -18px rgba(204, 0, 0, 0.4);
+}
+
+.sponsor:not(.sponsor--placeholder):hover::before {
+  opacity: 1;
+  box-shadow: 0 0 14px 4px rgba(204, 0, 0, 0.55);
+}
+
+.sponsor:not(.sponsor--placeholder):hover .sponsor__name {
+  color: var(--red);
+}
+
+.sponsor__logo-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  width: 100%;
 }
 
 .sponsor__logo {
   display: block;
-  width: 100%;
-  max-width: 300px;
-  max-height: 100px;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+}
+
+/* Sponsor-supplied wordmarks are drawn for a light background; where a
+   sponsor also gave us a recolored dark variant, swap it in for the dark
+   theme instead of boxing every logo in a mismatched light plate. */
+.sponsor__logo--light { display: none; }
+.sponsor__logo--dark { display: block; }
+
+[data-theme='light'] .sponsor__logo--light { display: block; }
+[data-theme='light'] .sponsor__logo--dark { display: none; }
+
+.sponsor__name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--steel);
+  transition: color 0.25s ease;
+}
+
+.sponsor--placeholder {
+  border-style: dashed;
+}
+
+.sponsor--placeholder::before {
+  background: transparent;
+  border: 1px solid var(--steel);
+  opacity: 0.6;
+}
+
+.sponsor__placeholder-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  color: var(--steel);
 }
 
 @media (max-width: 600px) {
   .sponsors__grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 12px;
   }
 
   .sponsor {
-    min-height: 120px;
-    padding: 1rem 0.75rem;
+    min-height: 132px;
+    padding: 1.5rem 1rem 1.1rem;
   }
 
-  .sponsor__logo {
-    max-height: 75px;
+  .sponsor__logo-frame {
+    height: 44px;
   }
 }
 

@@ -35,7 +35,7 @@ export default function Sponsors() {
           </motion.h2>
 
           <motion.p variants={item} className="section__lede">
-            We're grateful our sponsors for supporting {event.name}. If you are interested in sponsoring {event.name}, please reach out to acmchapter-org@ncsu.edu.
+            We're grateful to our sponsors for supporting {event.name}. If you are interested in sponsoring {event.name}, please reach out to acmchapter-org@ncsu.edu.
           </motion.p>
 
           <motion.div variants={item} className="sponsors__grid">
@@ -59,13 +59,30 @@ export default function Sponsors() {
                 }
                 transition={{ duration: 0.15 }}
               >
-                <img
-                  className="sponsor__logo"
-                  src={`${import.meta.env.BASE_URL}${sponsor.logoUrl}`}
-                  alt={sponsor.name}
-                />
+                <span className="sponsor__logo-frame">
+                  <img
+                    className={`sponsor__logo${sponsor.logoUrlDark ? ' sponsor__logo--light' : ''}`}
+                    src={`${import.meta.env.BASE_URL}${sponsor.logoUrl}`}
+                    alt={sponsor.name}
+                  />
+                  {sponsor.logoUrlDark && (
+                    <img
+                      className="sponsor__logo sponsor__logo--dark"
+                      src={`${import.meta.env.BASE_URL}${sponsor.logoUrlDark}`}
+                      alt=""
+                      aria-hidden="true"
+                    />
+                  )}
+                </span>
+                <span className="sponsor__name">{sponsor.name}</span>
               </motion.a>
             ))}
+
+            {event.sponsorsMoreComingSoon && (
+              <motion.div variants={item} className="sponsor sponsor--placeholder">
+                <span className="sponsor__placeholder-text">More sponsors<br />to be announced soon</span>
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       </div>
