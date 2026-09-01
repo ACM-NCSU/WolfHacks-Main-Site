@@ -42,7 +42,7 @@ export default function Footer() {
           <nav className="footer__links" aria-label="Footer">
             <a href="#faq">FAQ</a>
             <a href={event.codeOfConduct} target="_blank" rel="noreferrer">
-              Code of Conduct
+              MLH Code of Conduct
             </a>
           </nav>
 
