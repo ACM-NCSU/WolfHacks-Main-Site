@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.wolfhacks.org" }],
+      "destination": "https://wolfhacks.org/:path*",
+      "permanent": true
+    }
+  ],
   "services": {
     "frontend": {
       "root": "./",
