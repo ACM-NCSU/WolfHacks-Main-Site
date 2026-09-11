@@ -24,9 +24,10 @@ const siteConfig = {
       subhead:
         "WolfHacks is a fall hackathon brought together by ACM at NC State, where students come together to build something in one weekend. It's open to all majors and all skill levels. You'll have access to workshops, sponsor networking, mentors, and yes, free food. All you have to do is build a project in 24 hours.",
       registerNote:
-        'Registration is open. Complete your application below to join WolfHacks 2026.',
+        "Registration is open for hackers, and we're also looking for judges and mentors. Pick the application below that fits you.",
       preRegisterUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfVB5eG-ZD8I3EEUlYpEZzlQDA5_FBwCq3Noicah8exDBY4Yw/viewform',
       applicationUrl: '/apply',
+      judgeMentorApplicationUrl: 'https://forms.gle/Ht3VhNoYPgfp3RUS8',
       // Two theme-matched variants: light art on a dark card for dark mode,
       // dark art on a light card for light mode. Hero.jsx renders both and
       // CSS swaps which is visible based on [data-theme], so there's no flash.
@@ -61,6 +62,11 @@ const siteConfig = {
           question: 'Where is the event, and do I have to stay overnight?',
           answer:
             "Duke Energy Hall, NC State University, Raleigh, NC. The event is in person. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. You don't have to stay overnight — you're welcome to leave and come back if you'd prefer.",
+        },
+        {
+          question: 'Will you reimburse travel costs?',
+          answer:
+            "We're unable to provide reimbursement for travel or other costs incurred to reach the event.",
         },
         {
           question: 'What kind of activities will there be?',

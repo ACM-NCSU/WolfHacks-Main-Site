@@ -292,6 +292,9 @@ a.acm-mention:hover { text-decoration: underline; }
 
 .btn--primary { background: var(--red); color: var(--cream); }
 
+.btn--secondary { background: var(--red); border-color: var(--red); color: var(--cream); }
+.btn--secondary:hover { background: transparent; color: var(--red); }
+
 .btn:disabled { cursor: wait; opacity: 0.65; }
 
 /* ---------- Application ---------- */
