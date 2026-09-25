@@ -23,10 +23,12 @@ const siteConfig = {
       eyebrowPrefix: 'ACM AT NC STATE',
       subhead:
         "WolfHacks is a fall hackathon brought together by ACM at NC State, where students come together to build something in one weekend. It's open to all majors and all skill levels. You'll have access to workshops, sponsor networking, mentors, and yes, free food. All you have to do is build a project in 24 hours.",
+      // Hacker registration is closed. /apply is redirected in vercel.json,
+      // not routed in App.jsx, and rejected by the backend.
+      registrationOpen: false,
       registerNote:
-        "Registration is open for hackers, and we're also looking for judges and mentors. Pick the application below that fits you.",
+        "Hacker registration is now closed. Thank you to everyone who applied! Keep an eye on your inbox for acceptances and event details. We're still looking for judges and mentors, though.",
       preRegisterUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfVB5eG-ZD8I3EEUlYpEZzlQDA5_FBwCq3Noicah8exDBY4Yw/viewform',
-      applicationUrl: '/apply',
       judgeMentorApplicationUrl: 'https://forms.gle/Ht3VhNoYPgfp3RUS8',
       // Two theme-matched variants: light art on a dark card for dark mode,
       // dark art on a light card for light mode. Hero.jsx renders both and
@@ -54,9 +56,9 @@ const siteConfig = {
             'No. Anyone over the age of 18 is eligible to attend, whether or not you are a university student.',
         },
         {
-          question: 'Do I need a team, or experience, to apply?',
+          question: 'Do I need a team, or experience, to participate?',
           answer:
-            "No to both. You can apply solo and form a team at the event, and total beginners are welcome — there will be workshops and mentors all weekend. Teams should be between 2 and 4 people, and we'll have a team-building activity right after opening ceremony if you'd like to find teammates.",
+            "No to both. You can come solo and form a team at the event, and total beginners are welcome — there will be workshops and mentors all weekend. Teams should be between 2 and 4 people, and we'll have a team-building activity right after opening ceremony if you'd like to find teammates.",
         },
         {
           question: 'Where is the event, and do I have to stay overnight?',
@@ -74,12 +76,11 @@ const siteConfig = {
             'We will post the schedule closer to the event. There will be workshops and activities to take a break and meet other hackers and our wonderful sponsors.',
         },
         {
-          question: 'Are you sending out acceptances? Is there a deadline to apply?',
-          // TODO: fill in the actual number of days before the event acceptances go out.
+          question: 'Can I still register? When will I hear about acceptances?',
           answerBefore:
-            'We will send out acceptances a few days before the event. If you need earlier confirmation to book travel, please reach out to our team at ',
+            "Hacker registration is closed because we've reached the number of hackers we can support. If you applied, we'll email acceptances a few days before the event. If you have questions about your application, reach out to our team at ",
           link: { text: 'acmchapter-org@ncsu.edu', url: 'mailto:acmchapter-org@ncsu.edu' },
-          answerAfter: '. Applications will close once we reach the maximum amount of hackers we can support.',
+          answerAfter: '.',
         },
         {
           question: 'I have a different question!',

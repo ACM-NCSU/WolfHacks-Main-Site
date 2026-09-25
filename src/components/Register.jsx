@@ -18,7 +18,7 @@ export default function Register() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="section register" id="apply">
+    <section className="section register" id="register">
       <div className="container">
         <motion.div
           variants={container}
@@ -31,7 +31,7 @@ export default function Register() {
           </motion.p>
 
           <motion.h2 variants={item} className="section__heading">
-            Interested?
+            Registration is closed
           </motion.h2>
 
           <motion.p variants={item} className="section__lede">
@@ -41,16 +41,6 @@ export default function Register() {
           <motion.div variants={item} className="register__actions">
             <motion.a
               className="btn btn--primary"
-              href={event.hero.applicationUrl}
-              whileHover={prefersReducedMotion ? undefined : { y: -2, boxShadow: '0 6px 18px rgba(200, 16, 46, 0.45)' }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-              transition={{ duration: 0.15 }}
-            >
-              Register to Participate
-            </motion.a>
-
-            <motion.a
-              className="btn btn--secondary"
               href={event.hero.judgeMentorApplicationUrl}
               target="_blank"
               rel="noreferrer"

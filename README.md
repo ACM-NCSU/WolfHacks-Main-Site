@@ -21,7 +21,7 @@ The WolfHacks landing page. Built with React + Vite, hosted by ACM at NC State.
 
 ## Things to update before launch
 
-- Run the frontend and backend together for the application flow: the `Register` buttons open `/apply`, and submissions are sent to `POST /api/applications`.
+- Hacker registration is closed: `/apply` redirects home (`vercel.json` and `src/App.jsx`), and `POST /api/applications` returns 403 unless `WOLFHACKS_REGISTRATION_OPEN=true`.
 - Set `VITE_API_URL` when the API is hosted somewhere other than `http://localhost:8000`.
 - `src/data/siteConfig.js` → `event.trustBadge`: swap in your real MLH season year/region/color once generated from MLH's organizer dashboard.
 - Add real event dates, location details, and FAQ answers as they're finalized.

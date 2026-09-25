@@ -98,6 +98,8 @@ SPREADSHEET_ID = os.getenv(
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
 )
 SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:X")
+# Hacker registration is closed; set WOLFHACKS_REGISTRATION_OPEN=true to reopen.
+REGISTRATION_OPEN = os.getenv("WOLFHACKS_REGISTRATION_OPEN", "false").lower() == "true"
 
 # Supabase connection fields. Writes go through the service role key so they
 # bypass RLS from the backend the same way the Sheets append bypasses sharing
@@ -322,6 +324,10 @@ def health():
 
 @app.post("/api/applications", status_code=201)
 def create_application(application: Application):
+    if not REGISTRATION_OPEN:
+        logger.info("Rejected submission from <%s>: registration is closed", application.email)
+        raise HTTPException(status_code=403, detail="Registration for WolfHacks is closed.")
+
     logger.info(
         "Received application submission: %s %s <%s>",
         application.first_name,

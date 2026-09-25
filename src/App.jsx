@@ -8,18 +8,15 @@ import Sponsors from './components/Sponsors.jsx';
 import Faq from './components/Faq.jsx';
 import Location from './components/Location';
 import Footer from './components/Footer.jsx';
-import ApplyPage from './components/ApplyPage.jsx';
-import ThankYouPage from './components/ThankYouPage.jsx';
 
 export default function App() {
   const pathname = window.location.pathname.replace(/\/$/, '');
 
-  if (pathname === '/apply') {
-    return <ApplyPage />;
-  }
-
-  if (pathname === '/thank-you') {
-    return <ThankYouPage />;
+  // Registration is closed: /apply and /thank-you are redirected home in
+  // vercel.json; this covers local dev and any host without those redirects.
+  if (pathname === '/apply' || pathname === '/thank-you') {
+    window.location.replace('/');
+    return null;
   }
 
   return (

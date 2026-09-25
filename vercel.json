@@ -5,7 +5,10 @@
       "has": [{ "type": "host", "value": "www.wolfhacks.org" }],
       "destination": "https://wolfhacks.org/:path*",
       "permanent": true
-    }
+    },
+    { "source": "/apply", "destination": "/", "permanent": false },
+    { "source": "/apply/:path*", "destination": "/", "permanent": false },
+    { "source": "/thank-you", "destination": "/", "permanent": false }
   ],
   "services": {
     "frontend": {
