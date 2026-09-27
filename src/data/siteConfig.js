@@ -112,6 +112,20 @@ const siteConfig = {
         logoUrl: 'images/sponsors/pure-buttons.png',
         url: 'https://www.purebuttons.com/',
       },
+      {
+        name: 'Kenan Institute for Engineering, Technology & Science',
+        logoUrl: 'images/sponsors/KIETS-State-Logo.png',
+        // White-lettered variant generated from KIETS-State-Logo.png for the
+        // dark theme; the sponsor's own white version is the stacked layout.
+        logoUrlDark: 'images/sponsors/kenan-institute-dark.png',
+        url: 'https://kenan.ncsu.edu/',
+      },
+      {
+        name: 'Center for Geospatial Analytics',
+        logoUrl: 'images/sponsors/cgaBlack.png',
+        logoUrlDark: 'images/sponsors/cgaWhite.png',
+        url: 'https://cnr.ncsu.edu/geospatial/',
+      },
     ],
     sponsorsMoreComingSoon: true,
 
