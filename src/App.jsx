@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Starfield from './components/Starfield.jsx';
 import ThemeToggle from './components/ThemeToggle.jsx';
 import TrustBadge from './components/TrustBadge.jsx';
+import Announcement from './components/Announcement.jsx';
 import Hero from './components/Hero.jsx';
 import Register from './components/Register.jsx';
 import Sponsors from './components/Sponsors.jsx';
@@ -25,6 +26,7 @@ export default function App() {
       <div className="site-glow" aria-hidden="true" />
       <ThemeToggle />
       <TrustBadge />
+      <Announcement />
       <Hero />
       <Register />
       <Sponsors />

@@ -28,6 +28,8 @@ const siteConfig = {
       registrationOpen: false,
       registerNote:
         "Hacker registration is now closed. Thank you to everyone who applied! Keep an eye on your inbox for acceptances and event details. We're still looking for judges and mentors, though.",
+      notice:
+        "No overnight stay — the venue closes overnight, so please arrange your own accommodations if you're coming from outside the area.",
       preRegisterUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfVB5eG-ZD8I3EEUlYpEZzlQDA5_FBwCq3Noicah8exDBY4Yw/viewform',
       judgeMentorApplicationUrl: 'https://forms.gle/Ht3VhNoYPgfp3RUS8',
       // Two theme-matched variants: light art on a dark card for dark mode,
@@ -61,9 +63,9 @@ const siteConfig = {
             "No to both. You can come solo and form a team at the event, and total beginners are welcome — there will be workshops and mentors all weekend. Teams should be between 2 and 4 people, and we'll have a team-building activity right after opening ceremony if you'd like to find teammates.",
         },
         {
-          question: 'Where is the event, and do I have to stay overnight?',
+          question: 'Where is the event, and is there overnight accommodation?',
           answer:
-            "Duke Energy Hall, NC State University, Raleigh, NC. The event is in person. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. You don't have to stay overnight — you're welcome to leave and come back if you'd prefer.",
+            "Duke Energy Hall, NC State University, Raleigh, NC. The event is in person. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. There is no overnight stay at the venue — the building will not be open for sleeping, so participants coming from outside the area will need to arrange their own accommodations (hotel, etc.). You're welcome to leave and come back during the event.",
         },
         {
           question: 'Will you reimburse travel costs?',
