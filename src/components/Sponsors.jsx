@@ -77,12 +77,6 @@ export default function Sponsors() {
                 <span className="sponsor__name">{sponsor.name}</span>
               </motion.a>
             ))}
-
-            {event.sponsorsMoreComingSoon && (
-              <motion.div variants={item} className="sponsor sponsor--placeholder">
-                <span className="sponsor__placeholder-text">More sponsors<br />to be announced soon</span>
-              </motion.div>
-            )}
           </motion.div>
         </motion.div>
       </div>

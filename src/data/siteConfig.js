@@ -134,8 +134,12 @@ const siteConfig = {
         logoUrlDark: 'images/sponsors/cgaWhite.png',
         url: 'https://cnr.ncsu.edu/geospatial/',
       },
+      {
+        name: 'STMicroelectronics',
+        logoUrl: 'images/sponsors/ST_logo_2020_blue_V.svg',
+        url: 'https://www.st.com/',
+      },
     ],
-    sponsorsMoreComingSoon: true,
 
     registerThanksMessage: "You'll receive more information closer to the hackathon.",
   },

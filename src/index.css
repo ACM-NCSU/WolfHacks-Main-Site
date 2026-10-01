@@ -723,17 +723,17 @@ a.acm-mention:hover { text-decoration: underline; }
   transition: opacity 0.25s ease, box-shadow 0.25s ease;
 }
 
-.sponsor:not(.sponsor--placeholder):hover {
+.sponsor:hover {
   border-color: var(--red);
   box-shadow: 0 16px 32px -18px rgba(204, 0, 0, 0.4);
 }
 
-.sponsor:not(.sponsor--placeholder):hover::before {
+.sponsor:hover::before {
   opacity: 1;
   box-shadow: 0 0 14px 4px rgba(204, 0, 0, 0.55);
 }
 
-.sponsor:not(.sponsor--placeholder):hover .sponsor__name {
+.sponsor:hover .sponsor__name {
   color: var(--red);
 }
 
@@ -769,26 +769,6 @@ a.acm-mention:hover { text-decoration: underline; }
   text-transform: uppercase;
   color: var(--steel);
   transition: color 0.25s ease;
-}
-
-.sponsor--placeholder {
-  border-style: dashed;
-}
-
-.sponsor--placeholder::before {
-  background: transparent;
-  border: 1px solid var(--steel);
-  opacity: 0.6;
-}
-
-.sponsor__placeholder-text {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  line-height: 1.7;
-  color: var(--steel);
 }
 
 @media (max-width: 600px) {
