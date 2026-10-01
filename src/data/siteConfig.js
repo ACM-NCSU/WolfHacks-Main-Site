@@ -135,7 +135,7 @@ const siteConfig = {
         url: 'https://cnr.ncsu.edu/geospatial/',
       },
       {
-        name: 'STMicroelectronics',
+        name: 'ST Microelectronics',
         logoUrl: 'images/sponsors/ST_logo_2020_blue_V.svg',
         url: 'https://www.st.com/',
       },
