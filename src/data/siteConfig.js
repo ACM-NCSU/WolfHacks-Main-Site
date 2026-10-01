@@ -95,6 +95,12 @@ const siteConfig = {
 
     sponsors: [
       {
+        name: 'Databricks',
+        logoUrl: 'images/sponsors/databricks.png',
+        logoUrlDark: 'images/sponsors/databricks-dark.png',
+        url: 'https://www.databricks.com/',
+      },
+      {
         name: 'Institute for Advanced Analytics',
         logoUrl: 'images/sponsors/institute-for-advanced-analytics.png',
         // Sponsor's black wordmark is invisible on the dark theme's card, so
