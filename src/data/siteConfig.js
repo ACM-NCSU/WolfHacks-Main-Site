@@ -9,7 +9,62 @@ const siteConfig = {
     name: 'WolfHacks',
     date: 'Oct 3-4, 2026',
     location: 'Duke Energy Hall, Raleigh, NC',
-    countdownTarget: '2026-10-03T09:00:00',
+    // Both targets carry an explicit Eastern (EDT, -04:00) offset -- without
+    // one, a device in another time zone would count down to the wrong moment.
+    countdownTarget: '2026-10-03T09:00:00-04:00',
+    // Drives the "time left in the hackathon" timer on the portal overview
+    // page. Matches "Competition Begins" (Day 1, 11:00) through "Project
+    // Submissions Due" (Day 2, 11:00) on the real schedule -- see
+    // backend/repository.py's _seed_schedule -- i.e. the actual 24-hour
+    // building window, not the whole two-day event.
+    hackathonEndTarget: '2026-10-04T11:00:00-04:00',
+
+    // Day-of info for the portal's Overview tab, from the opening ceremony
+    // deck. All copy lives here so organizers can edit it without touching
+    // PortalOverview.jsx.
+    dayOf: {
+      tagline: '24 hours to turn an idea into a working project.',
+      highlights: ['Free food', 'Gain practical experience', 'Build something awesome', 'Get help from mentors', 'Win prizes', 'Meet new people'],
+      deadlines: [
+        { when: 'Sat 11:00 AM', what: 'Hacking begins' },
+        { when: 'Sat 7:30 PM', what: 'Everyone must leave Duke Energy Hall -- no overnight stays. Day 2 starts with breakfast at 9 AM.' },
+        { when: 'Sat 11:59 PM', what: 'Checkpoint: team members and track finalized on DevPost and in the portal (mandatory)' },
+        { when: 'Sun 11:00 AM', what: 'DevPost submission due' },
+        { when: 'Sun 12:30 PM', what: 'Judging starts: be at your table to demo' },
+        { when: 'Sun 3:00 PM', what: 'Closing ceremony and winners' },
+      ],
+      roadmap: [
+        { title: 'Team up & set up', text: 'Form your team, plan your track and project, join the Discord, and register on DevPost.' },
+        { title: 'Build & learn', text: 'Start building, connect with mentors, and attend workshops and optional challenges.' },
+        { title: 'Checkpoint', text: 'Have your track and team members finalized by 11:59 PM Saturday, on DevPost and in the portal. This is mandatory for submission.' },
+        { title: 'Project submission', text: 'Complete your DevPost submission by 11:00 AM Sunday at the latest. Start early!' },
+        { title: 'Judging', text: 'Set up at your table during the judging window and pitch your project.' },
+        { title: 'Closing ceremony', text: "Cheer on everyone and find out if you've won a prize." },
+      ],
+      rules: [
+        'No previously existing work can be used for submissions.',
+        'Projects must be submitted on DevPost by 11:00 AM Sunday to be considered.',
+        'Teams must be present to demo their projects to judges at 12:30 PM Sunday.',
+        'Cite AI usage properly in a README in your GitHub repository.',
+        'Every team participates in one, and only one, track.',
+        'Teams must have at least 2 people and no more than 4.',
+      ],
+      competitions: [
+        { name: 'Beginner competition', eligibility: 'WolfHacks 2026 must be the first hackathon for at least half of your teammates.', prize: 'JBL Charge 6 portable Bluetooth speaker' },
+        { name: 'General competition', eligibility: 'All other teams.', prize: 'Apple AirPods' },
+      ],
+      staff: [
+        { look: 'WolfHacks staff shirt', who: 'Organizers', swatch: 'var(--red)' },
+        { look: 'Black lanyard', who: 'Mentors and judges', swatch: '#000' },
+      ],
+      resources: [
+        { name: 'WolfHacks Discord', what: 'Talk to organizers and get important announcements.' },
+        { name: 'WolfHacks Portal', what: 'Form your team, pick your track, find event info, and check in for meals.' },
+        { name: 'DevPost', what: 'Submit your project.' },
+      ],
+      sponsors: ['Databricks', 'STMicroelectronics', 'NC State Applied AI Initiative', 'Kenan Institute for Engineering, Technology & Science', 'Center for Geospatial Analytics', 'Institute for Advanced Analytics'],
+      acmPartners: ['Fidelity Investments', 'NetApp', 'SMBC', 'Direct Supply', 'Eaton'],
+    },
 
     acm: {
       name: 'ACM at NC State',
@@ -23,15 +78,10 @@ const siteConfig = {
       eyebrowPrefix: 'ACM AT NC STATE',
       subhead:
         "WolfHacks is a fall hackathon brought together by ACM at NC State, where students come together to build something in one weekend. It's open to all majors and all skill levels. You'll have access to workshops, sponsor networking, mentors, and yes, free food. All you have to do is build a project in 24 hours.",
-      // Hacker registration is closed. /apply is redirected in vercel.json,
-      // not routed in App.jsx, and rejected by the backend.
-      registrationOpen: false,
-      registerNote:
-        "Hacker registration is now closed. Thank you to everyone who applied! Keep an eye on your inbox for acceptances and event details. We're still looking for judges and mentors, though.",
+      // Red "UPDATE" banner at the top of the landing page; omit to hide it.
       notice:
-        "No overnight stay — the venue closes overnight, so please arrange your own accommodations if you're coming from outside the area.",
+        "No overnight stay -- everyone must leave Duke Energy Hall by 7:30 PM Saturday, so please arrange your own accommodations if you're coming from outside the area.",
       preRegisterUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfVB5eG-ZD8I3EEUlYpEZzlQDA5_FBwCq3Noicah8exDBY4Yw/viewform',
-      judgeMentorApplicationUrl: 'https://forms.gle/Ht3VhNoYPgfp3RUS8',
       // Two theme-matched variants: light art on a dark card for dark mode,
       // dark art on a light card for light mode. Hero.jsx renders both and
       // CSS swaps which is visible based on [data-theme], so there's no flash.
@@ -63,9 +113,9 @@ const siteConfig = {
             "No to both. You can come solo and form a team at the event, and total beginners are welcome — there will be workshops and mentors all weekend. Teams should be between 2 and 4 people, and we'll have a team-building activity right after opening ceremony if you'd like to find teammates.",
         },
         {
-          question: 'Where is the event, and is there overnight accommodation?',
+          question: 'Where is the event, and can I stay overnight?',
           answer:
-            "Duke Energy Hall, NC State University, Raleigh, NC. The event is in person. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. There is no overnight stay at the venue — the building will not be open for sleeping, so participants coming from outside the area will need to arrange their own accommodations (hotel, etc.). You're welcome to leave and come back during the event.",
+            "Duke Energy Hall, NC State University, Raleigh, NC. The event is in person. Parking is free on Centennial Campus from 5 PM Friday to 7 AM Monday. Overnight stays aren't available: everyone needs to leave Duke Energy Hall by 7:30 PM Saturday, so plan to head home for the night and come back for breakfast at 9 AM Sunday. Participants coming from outside the area will need to arrange their own accommodations (hotel, etc.).",
         },
         {
           question: 'Will you reimburse travel costs?',
@@ -75,7 +125,7 @@ const siteConfig = {
         {
           question: 'What kind of activities will there be?',
           answer:
-            'We will post the schedule closer to the event. There will be workshops and activities to take a break and meet other hackers and our wonderful sponsors.',
+            'Saturday starts with check-in and a sponsorship fair at 9 AM, the opening ceremony at 10 AM, team formation at 10:30, and hacking from 11 AM. Expect MLH workshops, mentor check-ins, and meals throughout. Projects are due on DevPost at 11 AM Sunday, judging starts at 12:30 PM, and the closing ceremony is at 3 PM. The full live schedule is in the day-of portal.',
         },
         {
           question: 'Can I still register? When will I hear about acceptances?',
@@ -142,6 +192,134 @@ const siteConfig = {
     ],
 
     registerThanksMessage: "You'll receive more information closer to the hackathon.",
+
+    // Finalized 2026 track list. Slugs are the stable identifier stored on a
+    // team (see TrackChallengePicker.jsx) -- never change them; name/copy are
+    // safe to edit freely. Every field below `description` is optional and
+    // only rendered by TracksPage.jsx. `prizes` is ordered 1st, 2nd, 3rd.
+    tracks: [
+      {
+        slug: 'geospatial-analytics',
+        name: 'Center for Geospatial Analytics',
+        description:
+          'Location matters! Understanding where things happen and how people and places are connected can reveal patterns of impact, identify who and what is affected, and help target action where it matters most.',
+        problemStatement:
+          'Use geospatial data (data linked to geographic locations) to understand a pressing societal or environmental issue, and develop a software solution that helps determine where to take action.',
+        technologiesLabel: 'Tools',
+        technologies: ['GeoPandas', 'QGIS', 'Leaflet', 'MapLibre', 'deck.gl', 'Kepler.gl', 'Shapely', 'OSMnx', 'Folium', 'Mapbox'],
+        datasets: 'OpenStreetMap, Overpass API, US Census, Census TIGER/Line, NC OneMap, Data.gov, NOAA, USGS, EPA.',
+        prizes: ['Amazon Echo Show 5 smart display', 'Royal Kludge RK68 wireless mechanical keyboard', 'Logitech G203 gaming mouse'],
+      },
+      {
+        slug: 'applied-ai-software',
+        name: 'Applied AI Software (Databricks)',
+        description:
+          'Build innovative software applications that leverage the Databricks platform and agentic AI to solve real-world problems for a wearable application with streaming data.',
+        ideas: [
+          'Create an AI agent that analyzes data and provides actionable insights.',
+          'Build an application that allows users to interact with and explore complex datasets using AI.',
+          'Develop an agentic system that can use tools, data, and APIs to complete multi-step tasks.',
+        ],
+        technologies: ['Databricks', 'Python', 'SQL', 'AI/ML', 'LLMs', 'agentic AI'],
+        datasets: 'Wearable datasets containing multiple sessions will be provided.',
+        prizes: ['Fujifilm Instax Mini 12 instant camera', 'ELEGOO UNO R3 Super Starter Kit', 'Anker 10,000mAh power bank'],
+      },
+      {
+        slug: 'applied-ai-hardware',
+        name: 'Applied AI Hardware',
+        description:
+          'Build IoT and edge-AI solutions using the STMicroelectronics SensorTile.box development board to collect, analyze, and act on real-world sensor data.',
+        ideas: [
+          'Develop a wearable use case that tracks motion and/or audio.',
+          'Build a model that detects patterns or anomalies in sensor data.',
+          'Deploy an ML model to the IoT or edge devices.',
+        ],
+        technologies: ['STMicroelectronics hardware', 'Raspberry Pi', 'IoT Cloud', 'Python', 'ML/AI'],
+        prizes: ['Acer 27" 120Hz gaming monitor', 'HyperX Cloud Stinger 2 Core gaming headset'],
+      },
+      {
+        slug: 'advanced-analytics',
+        name: 'Institute for Advanced Analytics',
+        description:
+          'Students juggle deadlines across calendars, syllabi, and course sites, while study materials are scattered across PDFs, slides, and notes. Build an AI-powered dashboard that brings these resources together to help students organize their workload, prepare for exams, and understand their academic progress.',
+        paragraphs: [
+          'Your solution might include calendar integration, AI-generated practice questions, flashcards, study plans, progress tracking, or other features that help students study more effectively. Design an experience that makes it easier for students to understand what they need to do, what they need to study, and where they may need additional support.',
+        ],
+        dataScienceComponent: [
+          'Every team will train a decision tree model using a synthetic end-of-semester student dataset provided by WolfHacks. Use the model to predict whether a student is at risk of finishing a course with a D or F, then explore how those predictions could support students through your dashboard.',
+          'Teams should evaluate their model, explain what it learns, and consider how its predictions could translate into useful, actionable study advice. Teams should use a held-out split and test their model on the held-out portion of the data set.',
+        ],
+        goal: 'The goal is to combine creative product development, AI, and data science to build tools that help students succeed.',
+        prizes: ['Logitech G502 X gaming mouse', 'JBL Go 4 portable Bluetooth speaker', 'HyperX Cloud Stinger 2 Core gaming headset'],
+      },
+    ],
+
+    // Opt-in challenges: unlike tracks (exactly one per team), a team can
+    // opt into any number of these -- stored on the team as challenge_slugs.
+    // Slugs must match CHALLENGE_SLUGS in backend/teams.py exactly. `prize`
+    // is optional.
+    challenges: [
+      {
+        slug: 'applied-ai-data-streaming',
+        name: 'Applied AI Data Streaming Challenge',
+        description:
+          'This challenge is an extension of the other two Applied AI tracks. Add real-time data streaming to your project from either the Databricks track or the IoT track. To participate in this challenge, stream data into Databricks instead of using a dataset, or build a real-time interface around IoT sensor data.',
+      },
+      {
+        slug: 'mlh-elevenlabs',
+        name: 'Best Use of ElevenLabs',
+        prize: 'Wireless earbuds',
+        description:
+          'Deploy natural, human-sounding audio with ElevenLabs. Create realistic, dynamic, and emotionally expressive voices for any project, from interactive AI companions to narrated stories and voice-enabled apps -- no actors or complex audio production needed. Give your project a voice for a chance to win wireless earbuds!',
+      },
+      {
+        slug: 'mlh-gemini',
+        name: 'Best Use of Gemini API',
+        prize: 'MLH swag kits',
+        description:
+          "Push the boundaries of what's possible with AI using Google Gemini. Build a chatbot that gives personalized advice, an app that summarizes complex research papers, or generate creative content like code, scripts, and music. What will you build with the Gemini API this weekend?",
+      },
+      {
+        slug: 'mlh-solana',
+        name: 'Best Use of Solana',
+        prize: 'SenseCAP Card Tracker',
+        description:
+          'Solana is a network built for fast execution and near-zero transaction costs. Create a game, social app, or consumer product built on instant, high-frequency transactions; design a trading, lending, or decentralized exchange (DEX); or prototype supply chain, identity, or payments that can handle real-world volume. Prizes for you and each member of your team!',
+      },
+      {
+        slug: 'mlh-tiger-data',
+        name: 'Best Use of Tiger Data',
+        prize: 'Stream Deck Mini',
+        description:
+          'Tiger Data extends PostgreSQL into an ultra-fast foundation for real-time data, time-series metrics, and complex analytics: standard SQL, relational and metric data in one database, real-time dashboards via Continuous Aggregates, and 90%+ compression on free-tier instances. The most innovative, impactful, and performance-driven use of Tiger Data wins -- think real-time IoT monitoring, AI-driven analytics dashboards, or financial prediction engines.',
+      },
+      {
+        slug: 'mlh-godaddy-domain',
+        name: 'Best Domain Name from GoDaddy Registry',
+        prize: 'Digital gift card',
+        description: 'Register your domain name with GoDaddy Registry for a chance to win some amazing prizes!',
+      },
+    ],
+
+    // Judging rubric shown on the portal's Tracks tab. `general` applies to
+    // every team; `iaa` is additional criteria specific to the Institute for
+    // Advanced Analytics track (its dashboard has a data-science component
+    // the generic rubric doesn't cover).
+    judging: {
+      general: [
+        { label: 'Track', description: 'How well does the project address the problem statement and goals of the chosen track?' },
+        { label: 'Technology', description: 'How technically impressive is the project? Consider the difficulty of the technical challenges, creative use of technology, and how effectively different components work together. Did the technology make you say "Wow"?' },
+        { label: 'Design', description: 'How thoughtfully designed is the project for its intended users? Consider usability, interface design, accessibility, and the overall user experience.' },
+        { label: 'Execution', description: 'Does the hack work? Consider how much of the proposed solution was actually implemented, reliability, and how effectively the team executed its idea.' },
+      ],
+      iaa: [
+        { label: 'Track', description: 'How effectively does the solution support students in managing their workload, preparing for exams, and understanding their academic progress.' },
+        { label: 'Impact', description: "How useful is the project for its intended users? Consider whether the model's predictions and study recommendations provide actionable support that a student could realistically use." },
+        { label: 'Modeling', weighted: true, description: 'How effectively did the team develop and evaluate its decision tree model? Consider data cleaning, testing on held-out data, recall, overfitting, and comparison against the baseline.' },
+        { label: 'Communication', description: "How clearly does the team communicate its solution and technical approach? Consider the quality of the demo, visualizations, and plain-language explanation of the model's decisions." },
+        { label: 'Responsible AI', description: 'How thoughtfully does the team address responsible AI? Consider whether limitations are acknowledged, privacy is protected, AI use is disclosed, and risk flags are presented in a way that supports rather than discourages students.' },
+      ],
+    },
   },
 };
 

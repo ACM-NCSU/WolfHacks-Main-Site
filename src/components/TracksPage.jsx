@@ -1,0 +1,158 @@
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import siteConfig from '../data/siteConfig.js';
+
+const { tracks, challenges, judging } = siteConfig.event;
+const PLACES = ['1st', '2nd', '3rd'];
+
+function AccordionItem({ title, children }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="faq__item">
+      <button className="faq__summary" onClick={() => setIsOpen((v) => !v)} aria-expanded={isOpen}>
+        {title}
+        <motion.span
+          className="faq__toggle"
+          animate={{ rotate: isOpen ? 45 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          +
+        </motion.span>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            className="faq__answer"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CriteriaList({ criteria }) {
+  return (
+    <dl className="tracks-page__criteria">
+      {criteria.map((c) => (
+        <div className="tracks-page__criteria-item" key={c.label}>
+          <dt>{c.label}{c.weighted ? ' (weighted most)' : ''}</dt>
+          <dd>{c.description}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export default function TracksPage() {
+  return (
+    <section>
+      <div className="portal-shell__intro">
+        <p className="eyebrow">TRACKS</p>
+        <h1 className="section__heading">Pick a track, build something real.</h1>
+        <p className="section__lede">
+          Every team competes in one, and only one, of these sponsor tracks. Set (or change) your
+          team's track from the Team tab -- it must be finalized by 11:59 PM Saturday.
+        </p>
+      </div>
+
+      <div className="faq__list">
+        {tracks.map((track) => (
+          <AccordionItem key={track.slug} title={track.name}>
+            <p>{track.description}</p>
+            {track.problemStatement && (
+              <p><strong>Problem statement:</strong> {track.problemStatement}</p>
+            )}
+
+            {track.ideas && (
+              <ul className="tracks-page__list">
+                {track.ideas.map((idea) => (
+                  <li key={idea}>{idea}</li>
+                ))}
+              </ul>
+            )}
+
+            {track.paragraphs?.map((text) => <p key={text}>{text}</p>)}
+
+            {track.technologies && (
+              <>
+                <p><strong>{track.technologiesLabel ?? 'Technologies'}:</strong></p>
+                <div className="team-chip-group team-chip-group--tags">
+                  {track.technologies.map((tech) => (
+                    <span className="team-chip" key={tech}>{tech}</span>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {track.datasets && <p><strong>Datasets &amp; APIs:</strong> {track.datasets}</p>}
+
+            {track.dataScienceComponent && (
+              <>
+                <p><strong>Data science component:</strong> {track.dataScienceComponent[0]}</p>
+                {track.dataScienceComponent.slice(1).map((text) => <p key={text}>{text}</p>)}
+              </>
+            )}
+
+            {track.goal && <p>{track.goal}</p>}
+
+            {track.prizes && (
+              <>
+                <p><strong>Track prizes:</strong></p>
+                <ul className="tracks-page__list">
+                  {track.prizes.map((prize, i) => (
+                    <li key={prize}>{PLACES[i]}: {prize}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </AccordionItem>
+        ))}
+      </div>
+
+      <div className="portal-shell__intro" style={{ marginTop: 40 }}>
+        <p className="eyebrow">OPT-IN CHALLENGES</p>
+        <h2 className="section__heading">Go for bonus prizes.</h2>
+        <p className="section__lede">
+          On top of your track, your team can opt into as many of these challenges as you want --
+          the Applied AI Data Streaming Challenge and MLH&apos;s prize categories (one winning team
+          each). Opt in from the Team tab.
+        </p>
+      </div>
+
+      <div className="faq__list">
+        {challenges.map((challenge) => (
+          <AccordionItem key={challenge.slug} title={challenge.name}>
+            {challenge.prize && <p><strong>Prize:</strong> {challenge.prize}</p>}
+            <p>{challenge.description}</p>
+          </AccordionItem>
+        ))}
+      </div>
+
+      <div className="portal-shell__intro" style={{ marginTop: 40 }}>
+        <p className="eyebrow">JUDGING</p>
+        <h2 className="section__heading">How projects are judged.</h2>
+        <p className="section__lede">
+          Every project is scored against the general criteria below. The Institute for Advanced
+          Analytics track has its own additional rubric.
+        </p>
+      </div>
+
+      <div className="faq__list">
+        <AccordionItem title="General criteria">
+          <CriteriaList criteria={judging.general} />
+        </AccordionItem>
+        <AccordionItem title="Institute for Advanced Analytics track criteria">
+          <CriteriaList criteria={judging.iaa} />
+        </AccordionItem>
+      </div>
+    </section>
+  );
+}
