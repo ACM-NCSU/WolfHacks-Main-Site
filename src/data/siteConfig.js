@@ -193,6 +193,12 @@ const siteConfig = {
 
     registerThanksMessage: "You'll receive more information closer to the hackathon.",
 
+    // Event-wide links shown at the top of the portal's Resources tab, above
+    // the per-track `resources` below.
+    generalResources: [
+      { label: 'Opening ceremony slides', url: 'https://docs.google.com/presentation/d/1th9wDnOnEHkpBLGgQhIu3eZoxl9gkGMDfkyCOvGtvoo/edit?usp=sharing' },
+    ],
+
     // Finalized 2026 track list. Slugs are the stable identifier stored on a
     // team (see TrackChallengePicker.jsx) -- never change them; name/copy are
     // safe to edit freely. Every field below `description` is optional and
