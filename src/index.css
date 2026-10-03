@@ -1791,8 +1791,8 @@ button.team-chip--selected:hover { color: var(--cream); }
 
 .tracks-page__list { margin: 4px 0 16px; padding-left: 20px; color: var(--steel-dark); font-size: 14px; line-height: 1.5; }
 .tracks-page__list li { margin-bottom: 4px; }
-.tracks-page__resources a { color: var(--paper); text-decoration: underline; text-underline-offset: 2px; }
-.tracks-page__resources a:hover { color: var(--red); }
+.resources-page__list a { color: var(--paper); text-decoration: underline; text-underline-offset: 2px; }
+.resources-page__list a:hover { color: var(--red); }
 
 /* ---------- Portal overview ---------- */
 

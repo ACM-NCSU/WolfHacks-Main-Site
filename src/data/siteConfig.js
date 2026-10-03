@@ -197,8 +197,9 @@ const siteConfig = {
     // team (see TrackChallengePicker.jsx) -- never change them; name/copy are
     // safe to edit freely. Every field below `description` is optional and
     // only rendered by TracksPage.jsx. `prizes` is ordered 1st, 2nd, 3rd.
-    // `resources` ({ label, url }) are portal-only links -- datasets and
-    // workshop recordings we don't want public.
+    // `resources` ({ label, url }) are rendered on the portal's Resources
+    // tab (ResourcesPage.jsx), grouped by track -- datasets and workshop
+    // recordings we don't want on the public site.
     tracks: [
       {
         slug: 'geospatial-analytics',

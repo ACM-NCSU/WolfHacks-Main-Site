@@ -25,6 +25,14 @@ const PORTAL_SECTIONS = [
     note: 'Sponsor tracks, problem statements, and the judging rubric.',
   },
   {
+    id: 'resources',
+    path: '/portal/resources',
+    label: 'Resources',
+    eyebrow: 'RESOURCES',
+    heading: 'Datasets and workshop recordings.',
+    note: 'Track datasets and sponsor workshop recordings.',
+  },
+  {
     id: 'team',
     path: '/portal/team',
     label: 'Team',

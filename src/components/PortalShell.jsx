@@ -9,6 +9,7 @@ import MealsPage from './MealsPage.jsx';
 import CheckInSection from './CheckInSection.jsx';
 import TeamDashboard from './TeamDashboard.jsx';
 import TracksPage from './TracksPage.jsx';
+import ResourcesPage from './ResourcesPage.jsx';
 import usePortalSession from '../hooks/usePortalSession.js';
 import useAnnouncements from '../hooks/useAnnouncements.js';
 import PORTAL_SECTIONS from '../data/portalSections.js';
@@ -19,6 +20,7 @@ import PortalOverview from './PortalOverview.jsx';
 const SECTION_COMPONENTS = {
   schedule: SchedulePage,
   tracks: TracksPage,
+  resources: ResourcesPage,
   team: TeamDashboard,
   announcements: AnnouncementsPage,
   meals: MealsPage,
