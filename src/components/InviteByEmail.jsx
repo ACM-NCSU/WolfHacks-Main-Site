@@ -59,9 +59,11 @@ export default function InviteByEmail({ team, outgoingInvites, setOutgoingInvite
           </label>
           <p className="team-card__note">
             Use the email they applied with. They need to be checked in at the event to be invited.
+            No email is sent -- the invite shows up on their Team tab here in the portal, where they
+            can accept it.
           </p>
           {error && <p className="team-card__error" role="alert">{error}</p>}
-          {sentTo && <p className="team-card__note" role="status">Invite sent to {sentTo}.</p>}
+          {sentTo && <p className="team-card__note" role="status">Invite sent to {sentTo}. Tell them to open the Team tab in the portal to accept it -- they won&apos;t get an email.</p>}
           <button className="btn btn--primary" type="submit" disabled={submitting}>
             {submitting ? 'Sending...' : 'Send invite'}
           </button>
