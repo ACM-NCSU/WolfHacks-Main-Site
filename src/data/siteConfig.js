@@ -324,7 +324,8 @@ const siteConfig = {
     // Judging rubric shown on the portal's Tracks tab. `general` applies to
     // every team; `iaa` is additional criteria specific to the Institute for
     // Advanced Analytics track (its dashboard has a data-science component
-    // the generic rubric doesn't cover).
+    // the generic rubric doesn't cover). `appliedAiChallenge` scores teams
+    // that opted into the Applied AI Data Streaming Challenge.
     judging: {
       general: [
         { label: 'Track', description: 'How well does the project address the problem statement and goals of the chosen track?' },
@@ -338,6 +339,12 @@ const siteConfig = {
         { label: 'Modeling', weighted: true, description: 'How effectively did the team develop and evaluate its decision tree model? Consider data cleaning, testing on held-out data, recall, overfitting, and comparison against the baseline.' },
         { label: 'Communication', description: "How clearly does the team communicate its solution and technical approach? Consider the quality of the demo, visualizations, and plain-language explanation of the model's decisions." },
         { label: 'Responsible AI', description: 'How thoughtfully does the team address responsible AI? Consider whether limitations are acknowledged, privacy is protected, AI use is disclosed, and risk flags are presented in a way that supports rather than discourages students.' },
+      ],
+      appliedAiChallenge: [
+        { label: 'Real-Time Data Integration', description: 'How effectively does the project incorporate live sensor data into the existing application? Consider whether data is streamed in real time, how reliably it moves through the pipeline, and how well the solution handles the transition from raw sensor data to usable application data.' },
+        { label: 'Technical Implementation', description: 'How technically impressive is the real-time extension? Consider the difficulty of integrating IoT data, Databricks or other cloud technologies, and how well the components work together.' },
+        { label: 'Analytics & Insights', description: 'How effectively does the project turn streaming sensor data into meaningful analytics or insights? Consider whether real-time data enables functionality beyond a static dataset.' },
+        { label: 'Demo & Integration', description: 'How clearly does the team demonstrate the real-time functionality within its existing project? Consider whether the live data flow is visible, understandable, and meaningfully integrated.' },
       ],
     },
   },

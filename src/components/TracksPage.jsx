@@ -141,7 +141,8 @@ export default function TracksPage() {
         <h2 className="section__heading">How projects are judged.</h2>
         <p className="section__lede">
           Every project is scored against the general criteria below. The Institute for Advanced
-          Analytics track has its own additional rubric.
+          Analytics track and the Applied AI Data Streaming Challenge each have their own
+          additional rubric.
         </p>
       </div>
 
@@ -151,6 +152,9 @@ export default function TracksPage() {
         </AccordionItem>
         <AccordionItem title="Institute for Advanced Analytics track criteria">
           <CriteriaList criteria={judging.iaa} />
+        </AccordionItem>
+        <AccordionItem title="Applied AI Data Streaming Challenge criteria">
+          <CriteriaList criteria={judging.appliedAiChallenge} />
         </AccordionItem>
       </div>
     </section>
