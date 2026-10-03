@@ -103,6 +103,19 @@ export default function TracksPage() {
 
             {track.goal && <p>{track.goal}</p>}
 
+            {track.resources && (
+              <>
+                <p><strong>Resources:</strong></p>
+                <ul className="tracks-page__list tracks-page__resources">
+                  {track.resources.map((r) => (
+                    <li key={r.url}>
+                      <a href={r.url} target="_blank" rel="noreferrer">{r.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
             {track.prizes && (
               <>
                 <p><strong>Track prizes:</strong></p>

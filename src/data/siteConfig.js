@@ -197,6 +197,8 @@ const siteConfig = {
     // team (see TrackChallengePicker.jsx) -- never change them; name/copy are
     // safe to edit freely. Every field below `description` is optional and
     // only rendered by TracksPage.jsx. `prizes` is ordered 1st, 2nd, 3rd.
+    // `resources` ({ label, url }) are portal-only links -- datasets and
+    // workshop recordings we don't want public.
     tracks: [
       {
         slug: 'geospatial-analytics',
@@ -222,6 +224,11 @@ const siteConfig = {
         ],
         technologies: ['Databricks', 'Python', 'SQL', 'AI/ML', 'LLMs', 'agentic AI'],
         datasets: 'Wearable datasets containing multiple sessions will be provided.',
+        resources: [
+          { label: 'Dataset: BIG IDEAs glycemic wearable data (PhysioNet)', url: 'https://physionet.org/content/big-ideas-glycemic-wearable/1.1.3/' },
+          { label: 'Dataset: Zenodo record 21468410', url: 'https://zenodo.org/records/21468410' },
+          { label: 'Databricks workshop recording', url: 'https://drive.google.com/drive/folders/1lvRe0WHy6mJk8diT8aqViSJuHmKjUqsG' },
+        ],
         prizes: ['Fujifilm Instax Mini 12 instant camera', 'ELEGOO UNO R3 Super Starter Kit', 'Anker 10,000mAh power bank'],
       },
       {
@@ -235,7 +242,10 @@ const siteConfig = {
           'Deploy an ML model to the IoT or edge devices.',
         ],
         technologies: ['STMicroelectronics hardware', 'Raspberry Pi', 'IoT Cloud', 'Python', 'ML/AI'],
-        prizes: ['Acer 27" 120Hz gaming monitor', 'HyperX Cloud Stinger 2 Core gaming headset'],
+        resources: [
+          { label: 'STMicroelectronics workshop recording', url: 'https://drive.google.com/drive/folders/1awvV6HtTIKG6q-mT9vpzIA5hN_qQsUvI' },
+        ],
+        prizes: ['Acer 27" 120Hz gaming monitor', 'HyperX Cloud Stinger 2 Core gaming headset', 'Starter Kit for Raspberry Pi Pico'],
       },
       {
         slug: 'advanced-analytics',
@@ -250,6 +260,9 @@ const siteConfig = {
           'Teams should evaluate their model, explain what it learns, and consider how its predictions could translate into useful, actionable study advice. Teams should use a held-out split and test their model on the held-out portion of the data set.',
         ],
         goal: 'The goal is to combine creative product development, AI, and data science to build tools that help students succeed.',
+        resources: [
+          { label: 'Dataset: synthetic end-of-semester student data (Google Sheets)', url: 'https://docs.google.com/spreadsheets/d/1BY07xMuqnsLxGuuwqN6Lxuk6CT8GyrfB/edit?gid=1237816208#gid=1237816208' },
+        ],
         prizes: ['Logitech G502 X gaming mouse', 'JBL Go 4 portable Bluetooth speaker', 'HyperX Cloud Stinger 2 Core gaming headset'],
       },
     ],
@@ -263,7 +276,7 @@ const siteConfig = {
         slug: 'applied-ai-data-streaming',
         name: 'Applied AI Data Streaming Challenge',
         description:
-          'This challenge is an extension of the other two Applied AI tracks. Add real-time data streaming to your project from either the Databricks track or the IoT track. To participate in this challenge, stream data into Databricks instead of using a dataset, or build a real-time interface around IoT sensor data.',
+          'This challenge extends the two Applied AI tracks (Databricks and IoT). Build an end-to-end IoT data analytics pipeline that streams sensor data in real time and presents analytics on a cloud-based dashboard. To qualify, stream live data into Databricks rather than using a static dataset, or build a real-time interface around IoT sensor data.',
       },
       {
         slug: 'mlh-elevenlabs',
