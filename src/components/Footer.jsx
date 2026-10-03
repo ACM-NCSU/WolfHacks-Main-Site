@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import siteConfig from '../data/siteConfig.js';
 
 export default function Footer() {
@@ -44,6 +45,7 @@ export default function Footer() {
             <a href={event.codeOfConduct} target="_blank" rel="noreferrer">
               MLH Code of Conduct
             </a>
+            <Link to="/portal">Portal</Link>
           </nav>
 
           <div className="footer__contact">

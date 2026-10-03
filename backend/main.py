@@ -2,12 +2,18 @@ import json
 import logging
 import os
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from typing import Literal
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request as FastAPIRequest
+
+# Must run before importing db (and anything that imports db) -- those
+# modules read SUPABASE_URL/etc. from the environment at import time.
+load_dotenv()
+
+from fastapi import Depends, FastAPI, HTTPException, Query, status, Request as FastAPIRequest
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,9 +22,14 @@ from pydantic import BaseModel, Field, model_validator
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from supabase import create_client
 
-load_dotenv()
+from db import get_supabase_client, escape_ilike, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_APPLICATIONS_TABLE
+from auth import router as auth_router, get_current_participant
+from repository import Participant
+from schedule import router as schedule_router
+from announcements import router as announcements_router
+from meals import router as meals_router
+from teams import router as teams_router
 
 _log_formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -69,9 +80,15 @@ class AxiomHandler(logging.Handler):
                 method="POST",
             )
             urllib.request.urlopen(request, timeout=2)
-        except Exception:
-            # A logging failure must never break the request being handled.
-            pass
+        except urllib.error.HTTPError as exc:
+            # A logging failure must never break the request being handled --
+            # but print the reason straight to stderr (bypassing `logger`,
+            # which would recurse back into this handler) so it's visible in
+            # Vercel's Runtime Logs for debugging Axiom delivery issues.
+            body = exc.read().decode("utf-8", errors="replace") if hasattr(exc, "read") else ""
+            print(f"[AxiomHandler] delivery failed: HTTP {exc.code} {exc.reason}: {body}", file=sys.stderr)
+        except Exception as exc:
+            print(f"[AxiomHandler] delivery failed: {type(exc).__name__}: {exc}", file=sys.stderr)
 
 
 if AXIOM_TOKEN and AXIOM_DATASET:
@@ -98,15 +115,12 @@ SPREADSHEET_ID = os.getenv(
     "1ckYK82T8wayiCLtluOkQek4gQ4lwwE2WEvyWRLR6I3M",
 )
 SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "Applications!A:X")
-# Hacker registration is closed; set WOLFHACKS_REGISTRATION_OPEN=true to reopen.
-REGISTRATION_OPEN = os.getenv("WOLFHACKS_REGISTRATION_OPEN", "false").lower() == "true"
 
-# Supabase connection fields. Writes go through the service role key so they
-# bypass RLS from the backend the same way the Sheets append bypasses sharing
-# permissions via the service account.
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-SUPABASE_APPLICATIONS_TABLE = os.getenv("SUPABASE_APPLICATIONS_TABLE", "applications")
+app.include_router(auth_router)
+app.include_router(teams_router)
+app.include_router(schedule_router)
+app.include_router(announcements_router)
+app.include_router(meals_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -205,6 +219,10 @@ class Application(BaseModel):
     def validate_other_fields(self):
         if self.website:
             raise ValueError("Spam detected")
+        if not self.first_name.strip():
+            raise ValueError("First name cannot be blank")
+        if not self.last_name.strip():
+            raise ValueError("Last name cannot be blank")
         if ".." in self.discord_username:
             raise ValueError("Discord usernames cannot contain consecutive periods")
         if self.classification in UNIVERSITY_LEVELS and not self.university.strip():
@@ -251,12 +269,6 @@ def get_sheets_service():
 
     credentials.refresh(Request())
     return build("sheets", "v4", credentials=credentials, cache_discovery=False)
-
-
-def get_supabase_client():
-    if not (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY):
-        return None
-    return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 
 def write_to_supabase(application: Application):
@@ -324,10 +336,6 @@ def health():
 
 @app.post("/api/applications", status_code=201)
 def create_application(application: Application):
-    if not REGISTRATION_OPEN:
-        logger.info("Rejected submission from <%s>: registration is closed", application.email)
-        raise HTTPException(status_code=403, detail="Registration for WolfHacks is closed.")
-
     logger.info(
         "Received application submission: %s %s <%s>",
         application.first_name,
@@ -374,3 +382,134 @@ def create_application(application: Application):
         "updated_range": updated_range,
         "message": "Application received",
     }
+
+# --- Day-of check-in (staff tool) ---
+#
+# Organizer-facing lookup + check-in for registrants already in the
+# `applications` table. Gated by the same Supabase auth as the rest of the
+# portal (get_current_participant) plus an organizer-role check, since
+# checking someone in is what then lets auth.get_current_participant let
+# them log into the portal themselves.
+
+REGISTRANT_FIELDS = "id, first_name, last_name, email, checked_in, checked_in_at, accepted"
+
+
+class Registrant(BaseModel):
+    id: str
+    first_name: str
+    last_name: str
+    email: str
+    checked_in: bool
+    checked_in_at: str | None = None
+    accepted: bool
+
+
+def require_organizer(participant: Participant = Depends(get_current_participant)) -> Participant:
+    if not participant.is_organizer:
+        raise HTTPException(status_code=403, detail="Only organizers can access check-in.")
+    return participant
+
+
+def _require_supabase():
+    client = get_supabase_client()
+    if client is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Supabase is not configured: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY",
+        )
+    return client
+
+
+def _ilike_pattern(term: str) -> str:
+    return f"%{escape_ilike(term)}%"
+
+
+@app.get("/api/checkin/search", response_model=list[Registrant])
+def search_registrants(
+    q: str = Query(min_length=1, max_length=254),
+    _: Participant = Depends(require_organizer),
+):
+    client = _require_supabase()
+    table = client.table(SUPABASE_APPLICATIONS_TABLE)
+    query = q.strip()
+
+    if "@" in query:
+        # Email is the unique identifier, so treat it as an exact
+        # (case-insensitive) lookup rather than a fuzzy match.
+        result = table.select(REGISTRANT_FIELDS).ilike("email", query).limit(5).execute()
+        return result.data
+
+    # Fall back to name search: require every whitespace-separated token to
+    # appear somewhere in the first/last name, without building a raw
+    # PostgREST filter string out of user input.
+    tokens = [t for t in query.split() if t]
+    candidates: dict[str, dict] = {}
+    for token in tokens:
+        pattern = _ilike_pattern(token)
+        for column in ("first_name", "last_name"):
+            rows = table.select(REGISTRANT_FIELDS).ilike(column, pattern).limit(50).execute().data
+            for row in rows:
+                candidates[row["id"]] = row
+
+    def matches_all_tokens(row: dict) -> bool:
+        haystack = f"{row['first_name']} {row['last_name']}".lower()
+        return all(token.lower() in haystack for token in tokens)
+
+    return [row for row in candidates.values() if matches_all_tokens(row)][:20]
+
+
+@app.post("/api/checkin/{registrant_id}", response_model=Registrant)
+def check_in_registrant(registrant_id: str, _: Participant = Depends(require_organizer)):
+    client = _require_supabase()
+    now = datetime.now(timezone.utc).isoformat()
+
+    result = (
+        client.table(SUPABASE_APPLICATIONS_TABLE)
+        .update({"checked_in": True, "checked_in_at": now})
+        .eq("id", registrant_id)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Registrant not found")
+
+    row = result.data[0]
+    logger.info("Checked in registrant %s <%s>", registrant_id, row.get("email"))
+    return row
+
+
+@app.get("/api/checkin/stats")
+def checkin_stats(_: Participant = Depends(require_organizer)):
+    # Hackers only -- organizers/admins never check in through this flow, so
+    # counting them would inflate the headline number for no reason.
+    client = _require_supabase()
+    table = client.table(SUPABASE_APPLICATIONS_TABLE)
+
+    checked_in = (
+        table.select("id", count="exact", head=True)
+        .eq("role", "hacker")
+        .eq("checked_in", True)
+        .execute()
+    )
+    total = table.select("id", count="exact", head=True).eq("role", "hacker").execute()
+
+    return {
+        "checked_in": checked_in.count or 0,
+        "total_hackers": total.count or 0,
+    }
+
+
+@app.get("/api/checkin/verify")
+def verify_checked_in(email: str = Query(min_length=5, max_length=254)):
+    # Intentionally unauthenticated (unlike search/check-in above): kept for
+    # any client that wants a plain boolean without a full participant
+    # lookup. auth.get_current_participant enforces the actual login gate.
+    client = _require_supabase()
+    result = (
+        client.table(SUPABASE_APPLICATIONS_TABLE)
+        .select("checked_in")
+        .ilike("email", email.strip())
+        .limit(1)
+        .execute()
+    )
+    checked_in = bool(result.data and result.data[0]["checked_in"])
+    return {"checked_in": checked_in}
